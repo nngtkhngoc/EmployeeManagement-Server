@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 import cors from "cors";
 import { rateLimiter } from "./middlewares/rateLimiter.js";
+import { routes } from "./routes/index.js";
 
 dotenv.config();
 const app = express();
@@ -21,10 +22,12 @@ app.use(
     sameSite: "lax",
   })
 );
-app.use(rateLimiter);
+// app.use(rateLimiter);
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.urlencoded({ extended: true }));
+
+routes(app);
 
 const PORT = process.env.PORT || "5001";
 app.listen(PORT, () => {

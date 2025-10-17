@@ -1,14 +1,7 @@
-import express from "express";
-import {
-  createUser,
-  deleteUser,
-  getAllUsers,
-  getUser,
-  updateUser,
-} from "../controllers/auth.controller.js";
+import authRouter from "./auth.router.js";
+import employeeRouter from "./employee.router.js";
 
-const router = express.Router();
-
-router.route("/").get(getAllUsers).post(createUser);
-
-router.route("/:id").get(getUser).put(updateUser).delete(deleteUser);
+export const routes = (app) => {
+  app.use("/api/auth", authRouter);
+  app.use("/api/employee", employeeRouter);
+};
