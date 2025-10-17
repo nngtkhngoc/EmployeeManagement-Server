@@ -1,0 +1,290 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["relationJoins"]
+}
+
+model Department {
+    id             Int      @id @default(autoincrement())
+    departmentCode String   @map("department_code") @db.VarChar(4)
+    name           String   @db.VarChar(100)
+    foundedAt      DateTime @map("founded_at")
+    description    String?  @db.Text
+    createdAt      DateTime @default(now()) @map("created_at")
+
+    employees Employee[]
+
+    manager   Employee? @relation("DepartmentManager", fields: [managerId], references: [id])
+    managerId Int?      @unique @map("manager_id")
+}
+
+model Position {
+    id        Int      @id @default(autoincrement())
+    name      String   @db.VarChar(100)
+    createdAt DateTime @default(now()) @map("created_at")
+
+    employees   Employee[]
+    workHistory WorkHistory[]
+}
+
+model Employee {
+    id           Int        @id @default(autoincrement())
+    employeeCode String     @map("employee_code") @db.VarChar(5)
+    fullName     String     @map("full_name")
+    avatar       String?
+    workStatus   WorkStatus @map("work_status")
+    gender       Gender
+    birthday     DateTime
+    citizenId    String     @map("citizen_id")
+    phone        String
+    email        String
+    ethnicity    String
+    religion     String
+    education    Education
+    major        String
+    siNo         String     @map("si_no")
+    hiNo         String     @map("hi_no")
+    createdAt    DateTime   @default(now()) @map("created_at")
+
+    department   Department @relation(fields: [departmentId], references: [id])
+    departmentId Int        @map("department_id")
+
+    position   Position? @relation(fields: [positionId], references: [id])
+    positionId Int?      @map("position_id")
+
+    managedDepartment Department? @relation("DepartmentManager")
+
+    // Relationships
+    contractsSigned        Contract[]                @relation("EmployeeContract")
+    contractsAsSigner      Contract[]                @relation("SignedByManager")
+    workHistory            WorkHistory[]
+    leaveApplications      LeaveApplication[]
+    updateRequestsMade     UpdateRequest[]           @relation("RequestedBy")
+    updateRequestsReviewed UpdateRequest[]           @relation("ReviewedBy")
+    payrollDetails         PayrollReportDetail[]
+    attendanceDetails      AttendanceReportDetail[]
+    performanceDetails     PerformanceReportDetail[] @relation("PerformanceOfEmployee")
+    supervisedReports      PerformanceReportDetail[] @relation("PerformanceSupervisor")
+}
+
+model Contract {
+    id           Int            @id @default(autoincrement())
+    contractCode String         @map("contract_code") @db.VarChar(10)
+    type         ContractType
+    startDate    DateTime       @map("start_date")
+    endDate      DateTime       @map("end_date")
+    signedDate   DateTime       @map("signed_date")
+    status       ContractStatus
+    dailySalary  Decimal        @map("daily_salary")
+    allowance    Decimal
+    note         String?
+    attachment   String?
+    createdAt    DateTime       @default(now()) @map("created_at")
+
+    signedBy   Employee @relation("SignedByManager", fields: [signedById], references: [id])
+    signedById Int      @map("signed_by_id")
+
+    employee   Employee @relation("EmployeeContract", fields: [employeeId], references: [id])
+    employeeId Int      @map("employee_id")
+}
+
+model WorkHistory {
+    id        Int      @id @default(autoincrement())
+    startDate DateTime @map("start_date")
+    endDate   DateTime @map("end_date")
+    note      String
+    createdAt DateTime @default(now()) @map("created_at")
+
+    position   Position @relation(fields: [positionId], references: [id])
+    positionId Int      @map("position_id")
+
+    employee   Employee @relation(fields: [employeeId], references: [id])
+    employeeId Int      @map("employee_id")
+}
+
+model LeaveType {
+    id                Int                @id @default(autoincrement())
+    name              String
+    maxDays           Int                @map("max_days")
+    LeaveApplications LeaveApplication[]
+}
+
+model LeaveApplication {
+    id        Int         @id @default(autoincrement())
+    startDate DateTime    @map("start_date")
+    endDate   DateTime    @map("end_date")
+    reason    String
+    status    LeaveStatus
+    createdAt DateTime    @default(now()) @map("created_at")
+
+    employee   Employee @relation(fields: [employeeId], references: [id])
+    employeeId Int      @map("employee_id")
+
+    leaveType   LeaveType @relation(fields: [leaveTypeId], references: [id])
+    leaveTypeId Int       @map("leave_type_id")
+}
+
+model UpdateRequest {
+    id       Int    @id @default(autoincrement())
+    oldValue String @map("old_value")
+    newValue String @map("new_value")
+    reason   String
+
+    requestedBy   Employee @relation("RequestedBy", fields: [requestedById], references: [id])
+    requestedById Int      @map("requested_by_id")
+
+    reviewedBy   Employee @relation("ReviewedBy", fields: [reviewedById], references: [id])
+    reviewedById Int      @map("reviewed_by_id")
+}
+
+model AttendanceReport {
+    id        Int                      @id @default(autoincrement())
+    month     Int
+    year      Int
+    createdAt DateTime                 @default(now()) @map("created_at")
+    details   AttendanceReportDetail[]
+}
+
+model AttendanceReportDetail {
+    id            Int      @id @default(autoincrement())
+    leaveDays     Int      @default(0) @map("leave_days")
+    overLeaveDays Int      @default(0) @map("over_leave_days")
+    note          String?  @db.Text
+    createdAt     DateTime @default(now()) @map("created_at")
+
+    employee   Employee @relation(fields: [employeeId], references: [id])
+    employeeId Int      @map("employee_id")
+
+    attendanceReport   AttendanceReport @relation(fields: [attendanceReportId], references: [id])
+    attendanceReportId Int              @map("attendance_report_id")
+
+    payrollDetails PayrollReportDetail?
+}
+
+model PerformanceCriteria {
+    id                           Int                            @id @default(autoincrement())
+    name                         String
+    description                  String
+    createdAt                    DateTime                       @default(now()) @map("created_at")
+    PerformanceReportDetailScore PerformanceReportDetailScore[]
+}
+
+model PerformanceReport {
+    id        Int                       @id @default(autoincrement())
+    month     Int
+    year      Int
+    createdAt DateTime                  @default(now()) @map("created_at")
+    details   PerformanceReportDetail[]
+}
+
+model PerformanceReportDetail {
+    id Int @id @default(autoincrement())
+
+    employee   Employee @relation("PerformanceOfEmployee", fields: [employeeId], references: [id])
+    employeeId Int      @map("employee_id")
+
+    supervisor   Employee @relation("PerformanceSupervisor", fields: [supervisorId], references: [id])
+    supervisorId Int      @map("supervisor_id")
+
+    performanceReport   PerformanceReport @relation(fields: [performanceReportId], references: [id])
+    performanceReportId Int               @map("performance_report_id")
+
+    scores              PerformanceReportDetailScore[]
+    PayrollReportDetail PayrollReportDetail?
+}
+
+model PerformanceReportDetailScore {
+    id Int @id @default(autoincrement())
+
+    performanceReportDetail   PerformanceReportDetail @relation(fields: [performanceReportDetailId], references: [id])
+    performanceReportDetailId Int                     @map("performance_report_detail_id")
+
+    performanceCriteria   PerformanceCriteria @relation(fields: [performanceCriteriaId], references: [id])
+    performanceCriteriaId Int                 @map("performance_criteria_id")
+}
+
+model PayrollReport {
+    id        Int                   @id @default(autoincrement())
+    month     Int
+    year      Int
+    createdAt DateTime              @default(now()) @map("created_at")
+    details   PayrollReportDetail[]
+}
+
+model PayrollReportDetail {
+    id Int @id @default(autoincrement())
+
+    payrollReport   PayrollReport @relation(fields: [payrollReportId], references: [id])
+    payrollReportId Int           @map("payroll_report_id")
+
+    employee   Employee @relation(fields: [employeeId], references: [id])
+    employeeId Int      @map("employee_id")
+
+    attendanceReportDetail   AttendanceReportDetail @relation(fields: [attendanceReportDetailId], references: [id])
+    attendanceReportDetailId Int                    @unique @map("attendance_report_detail_id")
+
+    performanceReportDetail   PerformanceReportDetail @relation(fields: [performanceReportDetailId], references: [id])
+    performanceReportDetailId Int                     @unique @map("performance_report_detail_id")
+}
+
+enum WorkStatus {
+    WORKING_ONSITE
+    WORK_FROM_HOME
+    BUSINESS_TRIP
+    TRAINING
+    ON_LEAVE_PERSONAL
+    ON_LEAVE_SICK
+    ON_LEAVE_MATERNITY
+    ON_LEAVE_VACATION
+    OFF_DUTY
+    ABSENT
+    RESIGNED
+    TERMINATED
+    RETIRED
+}
+
+enum Gender {
+    MALE
+    FEMALE
+    OTHER
+    PREFER_NOT_TO_SAY
+}
+
+enum Education {
+    HIGH_SCHOOL
+    ASSOCIATE_DEGREE
+    BACHELOR_DEGREE
+    MASTER_DEGREE
+    DOCTORATE_DEGREE
+    POST_DOCTORAL
+    VOCATIONAL_TRAINING
+    OTHER
+}
+
+enum ContractType {
+    PART_TIME
+    INTERNSHIP
+    PROBATION
+    TEMPORARY
+    FREELANCE
+    OUTSOURCE
+}
+
+enum ContractStatus {
+    DRAFT
+    ACTIVE
+    EXPIRED
+    TERMINATED
+    PENDING
+    RENEWED
+}
+
+enum LeaveStatus {
+    PENDING
+    APPROVED
+    NOT_APPROVED
+}
