@@ -7,7 +7,7 @@ const positionController = {
 
       return res.status(200).json({ data: positions });
     } catch (error) {
-      return res.status(500);
+      return res.status(500).send();
     }
   },
   getPosition: async (req, res) => {},

@@ -7,7 +7,7 @@ const leaveTypeController = {
 
       return res.status(200).json({ data: leaveTypes });
     } catch (error) {
-      return res.status(500);
+      return res.status(500).send();
     }
   },
   getLeaveType: async (req, res) => {},

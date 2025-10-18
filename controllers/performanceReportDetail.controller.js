@@ -8,7 +8,7 @@ const performanceReportDetailController = {
 
       return res.status(200).json({ data: performanceReportDetails });
     } catch (error) {
-      return res.status(500);
+      return res.status(500).send();
     }
   },
   getPerformanceReportDetail: async (req, res) => {},

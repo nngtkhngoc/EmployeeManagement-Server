@@ -7,7 +7,7 @@ const workHistoryController = {
 
       return res.status(200).json({ data: workHistorys });
     } catch (error) {
-      return res.status(500);
+      return res.status(500).send();
     }
   },
   getWorkHistory: async (req, res) => {},

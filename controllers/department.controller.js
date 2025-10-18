@@ -7,7 +7,7 @@ const departmentController = {
 
       return res.status(200).json({ data: departments });
     } catch (error) {
-      return res.status(500);
+      return res.status(500).send();
     }
   },
   getDepartment: async (req, res) => {},

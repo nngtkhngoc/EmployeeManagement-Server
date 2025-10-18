@@ -8,7 +8,7 @@ const attendanceReportDetailController = {
 
       return res.status(200).json({ data: attendanceReportDetails });
     } catch (error) {
-      return res.status(500);
+      return res.status(500).send();
     }
   },
   getAttendanceReportDetail: async (req, res) => {},

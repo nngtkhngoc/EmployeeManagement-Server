@@ -7,7 +7,7 @@ const contractController = {
 
       return res.status(200).json({ data: contracts });
     } catch (error) {
-      return res.status(500);
+      return res.status(500).send();
     }
   },
   getContract: async (req, res) => {},

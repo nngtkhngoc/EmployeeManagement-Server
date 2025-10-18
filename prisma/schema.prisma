@@ -18,7 +18,7 @@ model Department {
 
     employees Employee[]
 
-    manager   Employee? @relation("DepartmentManager", fields: [managerId], references: [id])
+    manager   Employee? @relation("DepartmentManager", fields: [managerId], references: [id], onDelete: SetNull)
     managerId Int?      @unique @map("manager_id")
 }
 
@@ -33,7 +33,7 @@ model Position {
 
 model Employee {
     id           Int        @id @default(autoincrement())
-    employeeCode String     @map("employee_code") @db.VarChar(5)
+    employeeCode String?    @map("employee_code") @db.VarChar(5)
     fullName     String     @map("full_name")
     avatar       String?
     workStatus   WorkStatus @default(WORKING_ONSITE) @map("work_status")
@@ -50,10 +50,10 @@ model Employee {
     hiNo         String     @map("hi_no")
     createdAt    DateTime   @default(now()) @map("created_at")
 
-    department   Department @relation(fields: [departmentId], references: [id])
-    departmentId Int        @map("department_id")
+    department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+    departmentId Int?        @map("department_id")
 
-    position   Position? @relation(fields: [positionId], references: [id])
+    position   Position? @relation(fields: [positionId], references: [id], onDelete: SetNull)
     positionId Int?      @map("position_id")
 
     managedDepartment Department? @relation("DepartmentManager")
@@ -85,10 +85,10 @@ model Contract {
     attachment   String?
     createdAt    DateTime       @default(now()) @map("created_at")
 
-    signedBy   Employee @relation("SignedByManager", fields: [signedById], references: [id])
+    signedBy   Employee @relation("SignedByManager", fields: [signedById], references: [id], onDelete: Cascade)
     signedById Int      @map("signed_by_id")
 
-    employee   Employee @relation("EmployeeContract", fields: [employeeId], references: [id])
+    employee   Employee @relation("EmployeeContract", fields: [employeeId], references: [id], onDelete: Cascade)
     employeeId Int      @map("employee_id")
 }
 
@@ -99,10 +99,10 @@ model WorkHistory {
     note      String?
     createdAt DateTime @default(now()) @map("created_at")
 
-    position   Position @relation(fields: [positionId], references: [id])
+    position   Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
     positionId Int      @map("position_id")
 
-    employee   Employee @relation(fields: [employeeId], references: [id])
+    employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
     employeeId Int      @map("employee_id")
 }
 
@@ -121,10 +121,10 @@ model LeaveApplication {
     status    RequestStatus @default(PENDING)
     createdAt DateTime      @default(now()) @map("created_at")
 
-    employee   Employee @relation(fields: [employeeId], references: [id])
+    employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
     employeeId Int      @map("employee_id")
 
-    leaveType   LeaveType @relation(fields: [leaveTypeId], references: [id])
+    leaveType   LeaveType @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
     leaveTypeId Int       @map("leave_type_id")
 }
 
@@ -135,10 +135,10 @@ model UpdateRequest {
     reason   String?
     status   RequestStatus @default(PENDING)
 
-    requestedBy   Employee @relation("RequestedBy", fields: [requestedById], references: [id])
+    requestedBy   Employee @relation("RequestedBy", fields: [requestedById], references: [id], onDelete: Cascade)
     requestedById Int      @map("requested_by_id")
 
-    reviewedBy   Employee @relation("ReviewedBy", fields: [reviewedById], references: [id])
+    reviewedBy   Employee @relation("ReviewedBy", fields: [reviewedById], references: [id], onDelete: Cascade)
     reviewedById Int      @map("reviewed_by_id")
 }
 
@@ -160,7 +160,7 @@ model AttendanceReportDetail {
     employee   Employee @relation(fields: [employeeId], references: [id])
     employeeId Int      @map("employee_id")
 
-    attendanceReport   AttendanceReport @relation(fields: [attendanceReportId], references: [id])
+    attendanceReport   AttendanceReport @relation(fields: [attendanceReportId], references: [id], onDelete: Cascade)
     attendanceReportId Int              @map("attendance_report_id")
 
     payrollDetails PayrollReportDetail?
@@ -185,13 +185,13 @@ model PerformanceReport {
 model PerformanceReportDetail {
     id Int @id @default(autoincrement())
 
-    employee   Employee @relation("PerformanceOfEmployee", fields: [employeeId], references: [id])
+    employee   Employee @relation("PerformanceOfEmployee", fields: [employeeId], references: [id], onDelete: Cascade)
     employeeId Int      @map("employee_id")
 
-    supervisor   Employee @relation("PerformanceSupervisor", fields: [supervisorId], references: [id])
+    supervisor   Employee @relation("PerformanceSupervisor", fields: [supervisorId], references: [id], onDelete: Cascade)
     supervisorId Int      @map("supervisor_id")
 
-    performanceReport   PerformanceReport @relation(fields: [performanceReportId], references: [id])
+    performanceReport   PerformanceReport @relation(fields: [performanceReportId], references: [id], onDelete: Cascade)
     performanceReportId Int               @map("performance_report_id")
 
     scores              PerformanceReportDetailScore[]
@@ -201,10 +201,10 @@ model PerformanceReportDetail {
 model PerformanceReportDetailScore {
     id Int @id @default(autoincrement())
 
-    performanceReportDetail   PerformanceReportDetail @relation(fields: [performanceReportDetailId], references: [id])
+    performanceReportDetail   PerformanceReportDetail @relation(fields: [performanceReportDetailId], references: [id], onDelete: Cascade)
     performanceReportDetailId Int                     @map("performance_report_detail_id")
 
-    performanceCriteria   PerformanceCriteria @relation(fields: [performanceCriteriaId], references: [id])
+    performanceCriteria   PerformanceCriteria @relation(fields: [performanceCriteriaId], references: [id], onDelete: Cascade)
     performanceCriteriaId Int                 @map("performance_criteria_id")
 }
 
@@ -219,16 +219,16 @@ model PayrollReport {
 model PayrollReportDetail {
     id Int @id @default(autoincrement())
 
-    payrollReport   PayrollReport @relation(fields: [payrollReportId], references: [id])
+    payrollReport   PayrollReport @relation(fields: [payrollReportId], references: [id], onDelete: Cascade)
     payrollReportId Int           @map("payroll_report_id")
 
-    employee   Employee @relation(fields: [employeeId], references: [id])
+    employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
     employeeId Int      @map("employee_id")
 
-    attendanceReportDetail   AttendanceReportDetail @relation(fields: [attendanceReportDetailId], references: [id])
+    attendanceReportDetail   AttendanceReportDetail @relation(fields: [attendanceReportDetailId], references: [id], onDelete: Cascade)
     attendanceReportDetailId Int                    @unique @map("attendance_report_detail_id")
 
-    performanceReportDetail   PerformanceReportDetail @relation(fields: [performanceReportDetailId], references: [id])
+    performanceReportDetail   PerformanceReportDetail @relation(fields: [performanceReportDetailId], references: [id], onDelete: Cascade)
     performanceReportDetailId Int                     @unique @map("performance_report_detail_id")
 }
 
