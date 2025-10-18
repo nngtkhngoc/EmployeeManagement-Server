@@ -49,6 +49,7 @@ model Employee {
     siNo         String     @map("si_no")
     hiNo         String     @map("hi_no")
     createdAt    DateTime   @default(now()) @map("created_at")
+    password     String
 
     department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
     departmentId Int?        @map("department_id")
