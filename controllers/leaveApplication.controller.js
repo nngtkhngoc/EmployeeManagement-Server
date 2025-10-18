@@ -8,7 +8,7 @@ const leaveApplicationController = {
 
       return res.status(200).json({ data: leaveApplications });
     } catch (error) {
-      return res.status(500);
+      return res.status(500).send();
     }
   },
   getLeaveApplication: async (req, res) => {},

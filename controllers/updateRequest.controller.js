@@ -7,7 +7,7 @@ const updateRequestController = {
 
       return res.status(200).json({ data: updateRequests });
     } catch (error) {
-      return res.status(500);
+      return res.status(500).send();
     }
   },
   getUpdateRequest: async (req, res) => {},

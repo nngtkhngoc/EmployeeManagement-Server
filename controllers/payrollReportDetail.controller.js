@@ -8,7 +8,7 @@ const payrollReportDetailController = {
 
       return res.status(200).json({ data: payrollReportDetails });
     } catch (error) {
-      return res.status(500);
+      return res.status(500).send();
     }
   },
   getPayrollReportDetail: async (req, res) => {},
