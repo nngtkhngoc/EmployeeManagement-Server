@@ -2,7 +2,6 @@ import { employeeService } from "../services/employee.service.js";
 
 const employeeController = {
   getAllEmployees: async (req, res) => {
-    console.log("test");
     try {
       const employees = await employeeService.getAllEmployees();
 
@@ -12,8 +11,13 @@ const employeeController = {
     }
   },
   getEmployee: async (req, res) => {},
-  createEmployee: async (req, res) => {},
+  createEmployee: async (req, res) => {
+    // const {fullName, avatar, gender, birthday, citizenId, phone, email, ethnicity, religion, education, major, siNo, hiNo}
+    try {
+    } catch (error) {}
+  },
   deleteEmployee: async (req, res) => {},
   updateEmployee: async (req, res) => {},
 };
+
 export default employeeController;

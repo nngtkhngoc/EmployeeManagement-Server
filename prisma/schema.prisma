@@ -36,7 +36,7 @@ model Employee {
     employeeCode String     @map("employee_code") @db.VarChar(5)
     fullName     String     @map("full_name")
     avatar       String?
-    workStatus   WorkStatus @map("work_status")
+    workStatus   WorkStatus @default(WORKING_ONSITE) @map("work_status")
     gender       Gender
     birthday     DateTime
     citizenId    String     @map("citizen_id")
@@ -96,7 +96,7 @@ model WorkHistory {
     id        Int      @id @default(autoincrement())
     startDate DateTime @map("start_date")
     endDate   DateTime @map("end_date")
-    note      String
+    note      String?
     createdAt DateTime @default(now()) @map("created_at")
 
     position   Position @relation(fields: [positionId], references: [id])
@@ -114,12 +114,12 @@ model LeaveType {
 }
 
 model LeaveApplication {
-    id        Int         @id @default(autoincrement())
-    startDate DateTime    @map("start_date")
-    endDate   DateTime    @map("end_date")
+    id        Int           @id @default(autoincrement())
+    startDate DateTime      @map("start_date")
+    endDate   DateTime      @map("end_date")
     reason    String
-    status    LeaveStatus
-    createdAt DateTime    @default(now()) @map("created_at")
+    status    RequestStatus @default(PENDING)
+    createdAt DateTime      @default(now()) @map("created_at")
 
     employee   Employee @relation(fields: [employeeId], references: [id])
     employeeId Int      @map("employee_id")
@@ -129,10 +129,11 @@ model LeaveApplication {
 }
 
 model UpdateRequest {
-    id       Int    @id @default(autoincrement())
-    oldValue String @map("old_value")
-    newValue String @map("new_value")
-    reason   String
+    id       Int           @id @default(autoincrement())
+    oldValue String        @map("old_value")
+    newValue String        @map("new_value")
+    reason   String?
+    status   RequestStatus @default(PENDING)
 
     requestedBy   Employee @relation("RequestedBy", fields: [requestedById], references: [id])
     requestedById Int      @map("requested_by_id")
@@ -283,7 +284,7 @@ enum ContractStatus {
     RENEWED
 }
 
-enum LeaveStatus {
+enum RequestStatus {
     PENDING
     APPROVED
     NOT_APPROVED
