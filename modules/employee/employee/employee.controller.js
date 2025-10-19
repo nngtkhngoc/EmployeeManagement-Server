@@ -5,74 +5,51 @@ import employeeService from "./employee.service.js";
 
 const employeeController = {
   getAllEmployees: async (req, res) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 100;
+    try {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 100;
+      const { fullName, department, position, isActive } = req.query;
 
-    const { name, department, position, isActive } = req.query;
+      const filter = {};
 
-    const filter = {};
-
-    if (name) {
-      filter.fullName = {
-        contains: name,
-        mode: "insensitive",
-      };
-    }
-
-    if (department) {
-      filter.department = {
-        name: {
-          contains: department,
+      if (fullName) {
+        filter.fullName = {
+          contains: fullName,
           mode: "insensitive",
-        },
-      };
+        };
+      }
+
+      if (department) {
+        filter.department = {
+          name: {
+            contains: department,
+            mode: "insensitive",
+          },
+        };
+      }
+
+      if (position) {
+        filter.position = {
+          name: {
+            contains: position,
+            mode: "insensitive",
+          },
+        };
+      }
+
+      if (isActive !== undefined) {
+        filter.isActive = isActive === "true";
+      }
+
+      const options = { page, limit };
+
+      const employees = await employeeService.read({ where: filter }, options);
+
+      return res.status(200).json(new SuccessResponseDto(employees));
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal Server Error" });
     }
-
-    if (position) {
-      filter.position = {
-        name: {
-          contains: position,
-          mode: "insensitive",
-        },
-      };
-    }
-
-    if (isActive !== undefined) {
-      filter.isActive = isActive === "true";
-    }
-
-    const total = await employeeService.repository.count({ where: filter });
-    const totalPages = Math.ceil(total / limit);
-
-    const skip = (page - 1) * limit;
-
-    const employees = await employeeService.read({
-      where: filter,
-      skip,
-      take: limit,
-      include: {
-        department: true,
-        position: true,
-        managedDepartment: true,
-        contractsAsSigner: true,
-        contractsSigned: true,
-        workHistory: true,
-        leaveApplications: true,
-        updateRequestsMade: true,
-        updateRequestsReviewed: true,
-        payrollDetails: true,
-        attendanceDetails: true,
-        performanceDetails: true,
-        supervisedReports: true,
-      },
-      orderBy: [{ fullName: "desc" }, { createdAt: "desc" }],
-    });
-
-    const respondData = {
-      data: employees,
-      pagination: { page, limit, total, totalPages },
-    };
-    return res.status(200).json(new SuccessResponseDto(respondData));
   },
 
   getEmployee: async (req, res) => {
