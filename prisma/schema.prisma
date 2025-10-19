@@ -205,7 +205,8 @@ model PerformanceReportDetail {
 }
 
 model PerformanceReportDetailScore {
-    id Int @id @default(autoincrement())
+    id    Int    @id @default(autoincrement())
+    score Float?
 
     performanceReportDetail   PerformanceReportDetail @relation(fields: [performanceReportDetailId], references: [id], onDelete: Cascade)
     performanceReportDetailId Int                     @map("performance_report_detail_id")

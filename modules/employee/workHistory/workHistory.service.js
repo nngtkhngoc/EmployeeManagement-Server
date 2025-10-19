@@ -7,7 +7,7 @@ class WorkHistoryService extends BaseService {
     super(repository);
   }
 
-  async createInitialWorkHistory(tx, workHistoryData) {
+  async createWorkHistory(tx, workHistoryData) {
     return tx.workHistory.create({
       data: {
         startDate: new Date(),
@@ -22,6 +22,24 @@ class WorkHistoryService extends BaseService {
         employee: true,
       },
     });
+  }
+
+  async endWorkHistory(tx, employeeId) {
+    return tx.workHistory.updateMany({
+      data: {
+        endDate: new Date(),
+      },
+      where: {
+        employeeId,
+        endDate: null,
+      },
+    });
+  }
+
+  async updateWorkHistory(tx, workHistoryData) {
+    this.endWorkHistory(tx, workHistoryData.employeeId);
+
+    return this.createWorkHistory(tx, workHistoryData);
   }
 
   async readById(id) {
