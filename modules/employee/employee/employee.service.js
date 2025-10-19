@@ -46,10 +46,11 @@ class EmployeeService extends BaseService {
       });
 
       if (position.name.toLowerCase() === "manager") {
-        await tx.department.update({
+        const updatedDepartment = await tx.department.update({
           where: { id: departmentId },
           data: { managerId: newEmployee.id },
         });
+        newEmployee.department = updatedDepartment;
       }
 
       return newEmployee;
