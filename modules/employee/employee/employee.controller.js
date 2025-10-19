@@ -83,7 +83,10 @@ const employeeController = {
 
   getEmployee: async (req, res) => {
     const { id } = req.params;
-    const employee = await employeeService.readById(parseInt(id));
+    const employee = await employeeService.readById(parseInt(id), {
+      department: true,
+      position: true,
+    });
 
     if (!employee) throw new Error("Employee not found");
     return res.status(200).json(new SuccessResponseDto(employee));

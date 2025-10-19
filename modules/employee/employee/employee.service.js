@@ -228,6 +228,13 @@ class EmployeeService extends BaseService {
       },
     };
   }
+
+  async readById(id, include) {
+    return prisma.employee.findUnique({
+      where: { id },
+      include: include,
+    });
+  }
 }
 
 export default new EmployeeService(prisma.employee);
