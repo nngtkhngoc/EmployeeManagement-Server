@@ -17,8 +17,36 @@ export default class BaseService {
     return this.repository.create({ data, skipDuplicates: true });
   }
 
-  async read(filter) {
-    return this.repository.findMany(filter);
+  async read(filter = {}, options = {}) {
+    const { page = 1, limit = 20, sortBy, sortOrder = "asc" } = options;
+
+    const skip = (page - 1) * parseInt(limit);
+    const take = parseInt(limit);
+
+    const queryOptions = {
+      ...filter,
+      skip,
+      take,
+    };
+
+    if (sortBy) {
+      queryOptions.orderBy = { [sortBy]: sortOrder };
+    }
+
+    const [data, total] = await Promise.all([
+      this.repository.findMany(queryOptions),
+      this.repository.count({ where: filter.where }),
+    ]);
+
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async readOne(filter) {
