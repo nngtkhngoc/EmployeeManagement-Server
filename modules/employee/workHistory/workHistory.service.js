@@ -76,6 +76,13 @@ class WorkHistoryService extends BaseService {
       },
     };
   }
+
+  async readById(id, include) {
+    return this.repository.findUnique({
+      where: { id },
+      include: include,
+    });
+  }
 }
 
 export default new WorkHistoryService(prisma.workHistory);
