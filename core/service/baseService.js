@@ -62,14 +62,14 @@ export default class BaseService {
   async update(filter, data) {
     return this.repository.update({
       where: filter,
-      data,
+      data: this.removeUndefindedProps(data),
     });
   }
 
   async updateMany(filter) {
     return this.repository.update({
       where: filter,
-      data,
+      data: this.removeUndefindedProps(data),
     });
   }
 
@@ -91,5 +91,12 @@ export default class BaseService {
       });
 
     return this.repository.deleteMany({ where: filter });
+  }
+
+  removeUndefindedProps(data) {
+    Object.keys(data).forEach(
+      key => data[key] === undefined && delete data[key]
+    );
+    return data;
   }
 }
