@@ -1,8 +1,7 @@
 import contractService from "./contract.service.js";
-import contractValidation from "./contract.validation.js";
+import * as contractValidation from "../../validations/contract.validation.js";
 
 const contractController = {
-  // 🧾 Danh sách hợp đồng (đã có)
   getAllContracts: async (req, res) => {
     try {
       const query = await contractValidation.contractQuerySchema.validateAsync(
@@ -11,10 +10,13 @@ const contractController = {
           abortEarly: false,
         }
       );
+
+      console.log("Validated Query:", query);
       const contracts = await contractService.read(query);
       return res.status(200).json({ data: contracts });
     } catch (error) {
       console.error(error);
+
       if (error.isJoi) {
         return res.status(400).json({
           errors: error.details.map(d => d.message),
@@ -23,8 +25,6 @@ const contractController = {
       return res.status(500).send();
     }
   },
-
-  // 🔍 Chi tiết hợp đồng
   getContractById: async (req, res) => {
     try {
       const contractId = parseInt(req.params.id, 10);
@@ -38,7 +38,6 @@ const contractController = {
     }
   },
 
-  // ➕ Tạo hợp đồng mới
   createContract: async (req, res) => {
     try {
       const contractData =
@@ -58,7 +57,6 @@ const contractController = {
     }
   },
 
-  // ✏️ Cập nhật hợp đồng
   updateContract: async (req, res) => {
     try {
       const id = parseInt(req.params.id, 10);
@@ -79,7 +77,6 @@ const contractController = {
     }
   },
 
-  // 🗑️ Xoá hợp đồng
   deleteContract: async (req, res) => {
     try {
       const id = parseInt(req.params.id, 10);
@@ -93,7 +90,6 @@ const contractController = {
     }
   },
 
-  // ⚙️ Cập nhật trạng thái
   updateContractStatus: async (req, res) => {
     try {
       const id = parseInt(req.params.id, 10);
@@ -117,7 +113,6 @@ const contractController = {
     }
   },
 
-  // 📄 Hợp đồng của 1 nhân viên
   getContractsByEmployee: async (req, res) => {
     try {
       const employeeId = parseInt(req.params.employeeId, 10);
@@ -129,7 +124,6 @@ const contractController = {
     }
   },
 
-  // 📑 Hợp đồng được ký bởi 1 người
   getContractsByManager: async (req, res) => {
     try {
       const managerId = parseInt(req.params.managerId, 10);
@@ -141,7 +135,6 @@ const contractController = {
     }
   },
 
-  // 🔁 Gia hạn hợp đồng
   renewContract: async (req, res) => {
     try {
       const id = parseInt(req.params.id, 10);
@@ -162,7 +155,6 @@ const contractController = {
     }
   },
 
-  // 📊 Thống kê hợp đồng
   getContractStats: async (req, res) => {
     try {
       const stats = await contractService.getStats();

@@ -91,6 +91,6 @@ export const contractQuerySchema = Joi.object({
   employeeId: Joi.number().integer().optional(),
   signedById: Joi.number().integer().optional(),
   q: Joi.string().allow("").optional(),
-  page: Joi.number().integer().min(1).default(1),
-  limit: Joi.number().integer().min(1).max(100).default(10),
+  //page: Joi.number().integer().min(1).default(1),
+  //limit: Joi.number().integer().min(1).max(100).default(10),
 });
