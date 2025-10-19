@@ -6,6 +6,7 @@ import morgan from "morgan";
 import cors from "cors";
 import { rateLimiter } from "./middlewares/rateLimiter.js";
 import { routes } from "./routes/index.js";
+import globalErrorHandler from "./common/globalErrorHandler.js";
 
 dotenv.config();
 const app = express();
@@ -28,6 +29,8 @@ app.use(express.json());
 // app.use(express.urlencoded({ extended: true }));
 
 routes(app);
+
+app.use(globalErrorHandler);
 
 const PORT = process.env.PORT || "5001";
 app.listen(PORT, () => {
