@@ -16,7 +16,6 @@ const employeeController = {
       } = req.query;
       const page = parseInt(tmpPage) || 1;
       const limit = parseInt(tmpLimit) || 100;
-      console.log(personalInfor);
 
       const filter = {};
 
@@ -41,12 +40,15 @@ const employeeController = {
           ? department
           : department.split(",");
         filter.department = {
-          departmentCode: {
-            in: departmentArray,
-            mode: "insensitive",
-          },
+          OR: departmentArray.map(v => ({
+            OR: [
+              { name: { contains: v, mode: "insensitive" } },
+              { departmentCode: { contains: v, mode: "insensitive" } },
+            ],
+          })),
         };
       }
+
       if (position && position.length > 0) {
         const positionArray = Array.isArray(position)
           ? position

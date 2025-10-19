@@ -6,9 +6,7 @@ const router = express.Router();
 router.route("/").get(workHistoryController.getAllWorkHistory);
 //   .post(workHistoryController.createWorkHistory);
 
-// router
-//   .route("/:id")
-//   .get(workHistoryController.getWorkHistory)
+router.route("/:id").get(workHistoryController.getWorkHistory);
 //   .put(workHistoryController.updateWorkHistory)
 //   .delete(workHistoryController.deleteWorkHistory);
 

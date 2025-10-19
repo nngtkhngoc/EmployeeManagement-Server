@@ -7,42 +7,70 @@ const workHistoryController = {
     try {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 100;
-      const { startDate, endDate, department, isActive } = req.query;
+      const { startDate, endDate, department, position, employee, isActive } =
+        req.query;
 
       const filter = {};
 
-      //   if (fullName) {
-      //     filter.fullName = {
-      //       contains: fullName,
-      //       mode: "insensitive",
-      //     };
-      //   }
+      if (startDate) {
+        filter.startDate = {
+          gte: new Date(startDate),
+        };
+      }
 
-      //   if (department) {
-      //     filter.department = {
-      //       name: {
-      //         contains: department,
-      //         mode: "insensitive",
-      //       },
-      //     };
-      //   }
+      if (endDate) {
+        filter.endDate = {
+          lte: new Date(endDate),
+        };
+      }
 
-      //   if (position) {
-      //     filter.position = {
-      //       name: {
-      //         contains: position,
-      //         mode: "insensitive",
-      //       },
-      //     };
-      //   }
+      if (department && department.length > 0) {
+        const departmentArray = Array.isArray(department)
+          ? department
+          : department.split(",");
+        filter.department = {
+          OR: departmentArray.map(v => ({
+            OR: [
+              { name: { contains: v, mode: "insensitive" } },
+              { departmentCode: { contains: v, mode: "insensitive" } },
+            ],
+          })),
+        };
+      }
 
-      //   if (isActive !== undefined) {
-      //     filter.isActive = isActive === "true";
-      //   }
+      if (position && position.length > 0) {
+        const positionArray = Array.isArray(position)
+          ? position
+          : position.split(",");
+        filter.position = {
+          name: {
+            in: positionArray,
+            mode: "insensitive",
+          },
+        };
+      }
+
+      if (employee && employee.length > 0) {
+        const employeeArray = Array.isArray(employee)
+          ? employee
+          : employee.split(",");
+
+        filter.employee = {
+          OR: employeeArray.map(v => ({
+            OR: [
+              { fullName: { contains: v, mode: "insensitive" } },
+              { employeeCode: { contains: v, mode: "insensitive" } },
+            ],
+          })),
+        };
+      }
 
       const options = { page, limit };
 
-      const workHistorys = await workHistoryService.read({}, options);
+      const workHistorys = await workHistoryService.read(
+        { where: filter },
+        options
+      );
 
       return res.status(200).json(new SuccessResponseDto(workHistorys));
     } catch (error) {
