@@ -117,6 +117,7 @@ const employeeController = {
 
   updateEmployee: async (req, res) => {},
 };
+
 Object.entries(employeeController).forEach(([key, value]) => {
   employeeController[key] = catchAsync(value);
 });

@@ -96,11 +96,11 @@ model Contract {
 }
 
 model WorkHistory {
-    id        Int      @id @default(autoincrement())
-    startDate DateTime @map("start_date")
-    endDate   DateTime @map("end_date")
+    id        Int       @id @default(autoincrement())
+    startDate DateTime  @map("start_date")
+    endDate   DateTime? @map("end_date")
     note      String?
-    createdAt DateTime @default(now()) @map("created_at")
+    createdAt DateTime  @default(now()) @map("created_at")
 
     department   Department @relation(fields: [departmentId], references: [id])
     departmentId Int        @map("department_id")

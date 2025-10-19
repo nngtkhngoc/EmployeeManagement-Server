@@ -1,6 +1,7 @@
 import BaseService from "../../../core/service/baseService.js";
 import { prisma } from "../../../config/db.js";
 import { hashPassword } from "../../../config/bcrypt.js";
+import workHistoryService from "../workHistory/workHistory.service.js";
 
 class EmployeeService extends BaseService {
   constructor(repository) {
@@ -52,6 +53,17 @@ class EmployeeService extends BaseService {
         });
         newEmployee.department = updatedDepartment;
       }
+
+      const workHistory = await workHistoryService.createInitialWorkHistory(
+        tx,
+        {
+          employeeId: newEmployee.id,
+          departmentId: newEmployee.departmentId,
+          positionId: newEmployee.positionId,
+        }
+      );
+
+      newEmployee.workHistory = workHistory;
 
       return newEmployee;
     });
