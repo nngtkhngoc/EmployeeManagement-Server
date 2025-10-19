@@ -115,7 +115,39 @@ const employeeController = {
 
   deleteEmployee: async (req, res) => {},
 
-  updateEmployee: async (req, res) => {},
+  updateEmployee: async (req, res) => {
+    const value = await employeeValidation
+      .updateEmployeeValidate()
+      .validateAsync(req.body, {
+        abortEarly: false,
+      });
+
+    const employeeData = {
+      fullName: value.fullName,
+      avatar: value.avatar,
+      gender: value.gender,
+      birthday: value.birthday,
+      citizenId: value.citizenId,
+      phone: value.phone,
+      email: value.email,
+      ethnicity: value.ethnicity,
+      religion: value.religion,
+      education: value.education,
+      major: value.major,
+      siNo: value.siNo,
+      hiNo: value.hiNo,
+      departmentId: value.departmentId,
+      positionId: value.positionId,
+      workStatus: value.workStatus,
+    };
+
+    const updatedEmployee = await employeeService.update(
+      parseInt(req.params.id),
+      employeeData
+    );
+
+    return res.status(200).json(new SuccessResponseDto(updatedEmployee));
+  },
 };
 
 Object.entries(employeeController).forEach(([key, value]) => {

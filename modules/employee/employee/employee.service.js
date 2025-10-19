@@ -2,6 +2,7 @@ import BaseService from "../../../core/service/baseService.js";
 import { prisma } from "../../../config/db.js";
 import { hashPassword } from "../../../config/bcrypt.js";
 import workHistoryService from "../workHistory/workHistory.service.js";
+import departmentService from "../department/department.service.js";
 
 class EmployeeService extends BaseService {
   constructor(repository) {
@@ -47,21 +48,22 @@ class EmployeeService extends BaseService {
       });
 
       if (position.name.toLowerCase() === "manager") {
-        const updatedDepartment = await tx.department.update({
-          where: { id: departmentId },
-          data: { managerId: newEmployee.id },
-        });
+        const updatedDepartment = await departmentService.update(
+          tx,
+          { id: parseInt(departmentId) },
+          {
+            manager: { connect: { id: newEmployee.id } },
+          }
+        );
+
         newEmployee.department = updatedDepartment;
       }
 
-      const workHistory = await workHistoryService.createInitialWorkHistory(
-        tx,
-        {
-          employeeId: newEmployee.id,
-          departmentId: newEmployee.departmentId,
-          positionId: newEmployee.positionId,
-        }
-      );
+      const workHistory = await workHistoryService.createWorkHistory(tx, {
+        employeeId: newEmployee.id,
+        departmentId: newEmployee.departmentId,
+        positionId: newEmployee.positionId,
+      });
 
       newEmployee.workHistory = workHistory;
 
@@ -87,6 +89,108 @@ class EmployeeService extends BaseService {
         performanceDetails: true,
         supervisedReports: true,
       },
+    });
+  }
+
+  async update(id, employeeData) {
+    return prisma.$transaction(async tx => {
+      const { departmentId, positionId, workStatus } = employeeData;
+
+      // Tìm nhân viên hiện tại
+      const existingEmployee = await tx.employee.findUnique({
+        where: { id },
+        include: { position: true, department: true },
+      });
+      if (!existingEmployee) throw new Error("Nhân viên không tồn tại");
+
+      // Nếu nghỉ việc => kết thúc work history
+      if (
+        workStatus &&
+        ["RESIGNED", "TERMINATED", "RETIRED"].includes(workStatus)
+      ) {
+        await workHistoryService.endWorkHistory(tx, existingEmployee.id);
+      }
+
+      // Nếu có thay đổi phòng ban hoặc vị trí => kiểm tra hợp lệ
+      const isDepartmentChanged =
+        departmentId && departmentId !== existingEmployee.departmentId;
+      const isPositionChanged =
+        positionId && positionId !== existingEmployee.positionId;
+
+      if (isDepartmentChanged || isPositionChanged) {
+        if (departmentId) {
+          const department = await tx.department.findUnique({
+            where: { id: departmentId },
+          });
+          if (!department) throw new Error("Phòng ban không tồn tại");
+        }
+
+        if (positionId) {
+          const position = await tx.position.findUnique({
+            where: { id: positionId },
+          });
+          if (!position) throw new Error("Vị trí không tồn tại");
+        }
+
+        // Cập nhật lại work history
+        await workHistoryService.updateWorkHistory(tx, {
+          employeeId: existingEmployee.id,
+          departmentId: departmentId || existingEmployee.departmentId,
+          positionId: positionId || existingEmployee.positionId,
+        });
+      }
+
+      // Làm sạch dữ liệu để tránh lỗi undefined và các field không hợp lệ
+      const cleanData = Object.fromEntries(
+        Object.entries(employeeData).filter(
+          ([key, value]) =>
+            value !== undefined &&
+            key !== "departmentId" &&
+            key !== "positionId"
+        )
+      );
+
+      // Cập nhật thông tin nhân viên
+      const updatedEmployee = await tx.employee.update({
+        where: { id },
+        data: {
+          ...cleanData,
+          ...(departmentId && {
+            department: { connect: { id: departmentId } },
+          }),
+          ...(positionId && { position: { connect: { id: positionId } } }),
+        },
+        include: {
+          department: true,
+          position: true,
+        },
+      });
+
+      // Kiểm tra thay đổi chức vụ quản lý
+      const oldPositionName = existingEmployee.position?.name?.toLowerCase();
+      const newPositionName = updatedEmployee.position?.name?.toLowerCase();
+
+      // Nếu từ Manager => chức vụ khác => bỏ managerId trong department cũ
+      if (oldPositionName === "manager" && newPositionName !== "manager") {
+        await departmentService.update(
+          tx,
+          { id: existingEmployee.departmentId },
+          { manager: { disconnect: true } }
+        );
+      }
+
+      // Nếu từ chức vụ khác => Manager => set managerId cho department mới
+      if (newPositionName === "manager") {
+        const updatedDepartment = await departmentService.update(
+          tx,
+          { id: departmentId || updatedEmployee.departmentId },
+          { manager: { connect: { id: updatedEmployee.id } } }
+        );
+
+        updatedEmployee.department = updatedDepartment;
+      }
+
+      return updatedEmployee;
     });
   }
 }
