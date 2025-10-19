@@ -1,6 +1,5 @@
 import BaseService from "../../../core/service/baseService.js";
 import { prisma } from "../../../config/db.js";
-import { hashPassword } from "../../../config/bcrypt.js";
 
 class WorkHistoryService extends BaseService {
   constructor(repository) {
@@ -40,27 +39,6 @@ class WorkHistoryService extends BaseService {
     this.endWorkHistory(tx, workHistoryData.employeeId);
 
     return this.createWorkHistory(tx, workHistoryData);
-  }
-
-  async readById(id) {
-    return prisma.workHistory.findUnique({
-      where: { id },
-      include: {
-        department: true,
-        position: true,
-        managedDepartment: true,
-        contractsAsSigner: true,
-        contractsSigned: true,
-        workHistory: true,
-        leaveApplications: true,
-        updateRequestsMade: true,
-        updateRequestsReviewed: true,
-        payrollDetails: true,
-        attendanceDetails: true,
-        performanceDetails: true,
-        supervisedReports: true,
-      },
-    });
   }
 }
 

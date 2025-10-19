@@ -6,44 +6,71 @@ import employeeService from "./employee.service.js";
 const employeeController = {
   getAllEmployees: async (req, res) => {
     try {
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 100;
-      const { fullName, department, position, isActive } = req.query;
+      const {
+        department,
+        position,
+        isActive,
+        page: tmpPage,
+        limit: tmpLimit,
+        ...personalInfor
+      } = req.query;
+      const page = parseInt(tmpPage) || 1;
+      const limit = parseInt(tmpLimit) || 100;
+      console.log(personalInfor);
 
       const filter = {};
 
-      if (fullName) {
-        filter.fullName = {
-          contains: fullName,
-          mode: "insensitive",
-        };
-      }
-
-      if (department) {
-        filter.department = {
-          name: {
-            contains: department,
-            mode: "insensitive",
-          },
-        };
-      }
-
-      if (position) {
-        filter.position = {
-          name: {
-            contains: position,
-            mode: "insensitive",
-          },
-        };
-      }
+      Object.entries(personalInfor).forEach(([key, value]) => {
+        if (value) {
+          const valueArray = Array.isArray(value) ? value : value.split(",");
+          filter.OR = valueArray.map(v => ({
+            [key]: {
+              contains: v,
+              mode: "insensitive",
+            },
+          }));
+        }
+      });
 
       if (isActive !== undefined) {
         filter.isActive = isActive === "true";
       }
 
-      const options = { page, limit };
+      if (department && department.length > 0) {
+        const departmentArray = Array.isArray(department)
+          ? department
+          : department.split(",");
+        filter.department = {
+          departmentCode: {
+            in: departmentArray,
+            mode: "insensitive",
+          },
+        };
+      }
+      if (position && position.length > 0) {
+        const positionArray = Array.isArray(position)
+          ? position
+          : position.split(",");
+        filter.position = {
+          name: {
+            in: positionArray,
+            mode: "insensitive",
+          },
+        };
+      }
 
-      const employees = await employeeService.read({ where: filter }, options);
+      const options = { page, limit };
+      const where = filter;
+      const include = {
+        department: true,
+        position: true,
+      };
+      const employees = await employeeService.read(
+        { where, include },
+        {
+          options,
+        }
+      );
 
       return res.status(200).json(new SuccessResponseDto(employees));
     } catch (error) {

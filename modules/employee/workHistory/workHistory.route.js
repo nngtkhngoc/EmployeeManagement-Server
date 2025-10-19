@@ -1,11 +1,9 @@
-// import express from "express";
-// import workHistoryController from "./workHistory.controller.js";
+import express from "express";
+import workHistoryController from "./workHistory.controller.js";
 
-// const router = express.Router();
+const router = express.Router();
 
-// router
-//   .route("/")
-//   .get(workHistoryController.getAllWorkHistory)
+router.route("/").get(workHistoryController.getAllWorkHistory);
 //   .post(workHistoryController.createWorkHistory);
 
 // router
@@ -14,4 +12,4 @@
 //   .put(workHistoryController.updateWorkHistory)
 //   .delete(workHistoryController.deleteWorkHistory);
 
-// export default router;
+export default router;
