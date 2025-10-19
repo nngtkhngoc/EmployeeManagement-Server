@@ -52,7 +52,7 @@ export default class BaseService {
         data: { isActive: false },
       });
 
-    return this.repository.delete(filter);
+    return this.repository.delete({ where: filter });
   }
 
   async deleteMany(filter, option = DELETE_OPTION.HARD) {
@@ -62,6 +62,6 @@ export default class BaseService {
         data: { isActive: false },
       });
 
-    return this.repository.delete(filter);
+    return this.repository.deleteMany({ where: filter });
   }
 }
