@@ -1,7 +1,6 @@
-import authRouter from "./auth.router.js";
-import employeeRouter from "./employee.router.js";
+import employeeRouter from "../modules/employee/employee.route.js";
 
-export const routes = (app) => {
-  app.use("/api/auth", authRouter);
+export const routes = app => {
   app.use("/api/employee", employeeRouter);
+  app.use("/healthcheck", (req, res) => res.status(200).send("OK"));
 };

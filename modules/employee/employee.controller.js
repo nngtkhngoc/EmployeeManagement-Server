@@ -1,5 +1,5 @@
-import employeeValidation from "../validations/employee.validation.js";
-import employeeService from "../services/employee.service.js";
+import employeeValidation from "../../validations/employee.validation.js";
+import employeeService from "./employee.service.js";
 
 const employeeController = {
   getAllEmployees: async (req, res) => {
@@ -8,6 +8,7 @@ const employeeController = {
 
       return res.status(200).json({ data: employees });
     } catch (error) {
+      console.log(error);
       return res.status(500).send();
     }
   },
@@ -15,6 +16,7 @@ const employeeController = {
   getEmployee: async (req, res) => {},
 
   createEmployee: async (req, res) => {
+    // TODO: Implement the correct logic
     try {
       const value = await employeeValidation
         .createEmployeeValidate()
