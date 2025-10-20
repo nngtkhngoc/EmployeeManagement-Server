@@ -1,6 +1,8 @@
 import { SuccessResponseDto } from "../../../common/dtos/successResponseDto.js";
 import catchAsync from "../../../common/catchAsync.js";
 import departmentService from "./department.service.js";
+import employeeService from "../employee/employee.service.js";
+import departmentValidation from "../../../validations/department.validation.js";
 
 const departmentController = {
   getAllDepartments: async (req, res) => {
@@ -47,7 +49,7 @@ const departmentController = {
     const { id } = req.params;
     const department = await departmentService.readById(parseInt(id));
 
-    if (!department) throw new Error("Department not found");
+    if (!department) throw new Error("Phòng ban không tồn tại.");
     return res.status(200).json(new SuccessResponseDto(department));
   },
 
@@ -59,21 +61,11 @@ const departmentController = {
       });
 
     const departmentData = {
-      fullName: value.fullName,
-      avatar: value.avatar,
-      gender: value.gender,
-      birthday: value.birthday,
-      citizenId: value.citizenId,
-      phone: value.phone,
-      email: value.email,
-      ethnicity: value.ethnicity,
-      religion: value.religion,
-      education: value.education,
-      major: value.major,
-      siNo: value.siNo,
-      hiNo: value.hiNo,
-      departmentId: value.departmentId,
-      positionId: value.positionId,
+      departmentCode: value.departmentCode,
+      name: value.name,
+      foundedAt: value.foundedAt,
+      description: value.description,
+      managerId: value.managerId,
     };
 
     const newDepartment = await departmentService.create(departmentData);

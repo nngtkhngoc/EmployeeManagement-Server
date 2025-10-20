@@ -210,6 +210,13 @@ class EmployeeService extends BaseService {
       include: include,
     });
   }
+
+  async updateManager(tx, filter, employeeData) {
+    return tx.employee.update({
+      where: filter,
+      data: employeeData,
+    });
+  }
 }
 
 export default new EmployeeService(prisma.employee);
