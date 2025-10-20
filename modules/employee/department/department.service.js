@@ -17,19 +17,8 @@ class DepartmentService extends BaseService {
     return prisma.department.findUnique({
       where: { id },
       include: {
-        department: true,
-        position: true,
-        managedDepartment: true,
-        contractsAsSigner: true,
-        contractsSigned: true,
-        workHistory: true,
-        leaveApplications: true,
-        updateRequestsMade: true,
-        updateRequestsReviewed: true,
-        payrollDetails: true,
-        attendanceDetails: true,
-        performanceDetails: true,
-        supervisedReports: true,
+        manager: true,
+        employees: true,
       },
     });
   }

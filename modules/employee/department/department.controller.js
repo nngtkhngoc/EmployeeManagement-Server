@@ -45,10 +45,7 @@ const departmentController = {
 
   getDepartment: async (req, res) => {
     const { id } = req.params;
-    const department = await departmentService.readById(parseInt(id), {
-      department: true,
-      position: true,
-    });
+    const department = await departmentService.readById(parseInt(id));
 
     if (!department) throw new Error("Department not found");
     return res.status(200).json(new SuccessResponseDto(department));
