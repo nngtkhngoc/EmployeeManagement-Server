@@ -66,9 +66,8 @@ const departmentValidation = {
         .min(3)
         .max(100)
         .pattern(/^[a-zA-ZÀ-ỹ\s&]+$/)
-        .required()
+        .optional()
         .messages({
-          "any.required": "Tên phòng ban là bắt buộc",
           "string.empty": "Tên phòng ban không được để trống",
           "string.min": "Tên phòng ban phải có ít nhất 3 ký tự",
           "string.max": "Tên phòng ban không được quá 100 ký tự",

@@ -83,22 +83,11 @@ const departmentController = {
       });
 
     const departmentData = {
-      fullName: value.fullName,
-      avatar: value.avatar,
-      gender: value.gender,
-      birthday: value.birthday,
-      citizenId: value.citizenId,
-      phone: value.phone,
-      email: value.email,
-      ethnicity: value.ethnicity,
-      religion: value.religion,
-      education: value.education,
-      major: value.major,
-      siNo: value.siNo,
-      hiNo: value.hiNo,
-      departmentId: value.departmentId,
-      positionId: value.positionId,
-      workStatus: value.workStatus,
+      departmentCode: value.departmentCode,
+      name: value.name,
+      foundedAt: value.foundedAt,
+      description: value.description,
+      managerId: value.managerId,
     };
 
     const updatedDepartment = await departmentService.update(
