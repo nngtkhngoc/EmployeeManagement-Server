@@ -11,7 +11,7 @@ router
 router
   .route("/:id")
   .get(departmentController.getDepartment)
-  .put(departmentController.updateDepartment);
-//   .delete(departmentController.deleteDepartment);
+  .put(departmentController.updateDepartment)
+  .delete(departmentController.deleteDepartment);
 
 export default router;

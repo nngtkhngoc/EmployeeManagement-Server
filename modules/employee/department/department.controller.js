@@ -73,7 +73,16 @@ const departmentController = {
     return res.status(201).json(new SuccessResponseDto(newDepartment));
   },
 
-  deleteDepartment: async (req, res) => {},
+  deleteDepartment: async (req, res) => {
+    const existingDept = await departmentService.readById(
+      parseInt(req.params.id)
+    );
+    if (!existingDept) throw new Error("Phòng ban không tồn tại.");
+
+    await departmentService.delete({ id: parseInt(req.params.id) });
+
+    return res.status(204).json(new SuccessResponseDto(""));
+  },
 
   updateDepartment: async (req, res) => {
     const value = await departmentValidation

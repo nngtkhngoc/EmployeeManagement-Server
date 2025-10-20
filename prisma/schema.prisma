@@ -55,8 +55,8 @@ model Employee {
     contractsSigned        Contract[]                @relation("EmployeeContract")
     contractsAsSigner      Contract[]                @relation("SignedByManager")
     managedDepartment      Department?               @relation("DepartmentManager")
-    department             Department?               @relation(fields: [departmentId], references: [id])
-    position               Position?                 @relation(fields: [positionId], references: [id])
+    department             Department?               @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+    position               Position?                 @relation(fields: [positionId], references: [id], onDelete: Cascade)
     leaveApplications      LeaveApplication[]
     payrollDetails         PayrollReportDetail[]
     performanceDetails     PerformanceReportDetail[] @relation("PerformanceOfEmployee")
