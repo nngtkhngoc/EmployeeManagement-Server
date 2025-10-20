@@ -1,7 +1,7 @@
 import BaseService from "../../../core/service/baseService.js";
 import { prisma } from "../../../config/db.js";
 
-class EmployeeService extends BaseService {
+class DepartmentService extends BaseService {
   constructor(repository) {
     super(repository);
   }
@@ -14,7 +14,7 @@ class EmployeeService extends BaseService {
   }
 
   async readById(id) {
-    return prisma.employee.findUnique({
+    return prisma.department.findUnique({
       where: { id },
       include: {
         department: true,
@@ -35,4 +35,4 @@ class EmployeeService extends BaseService {
   }
 }
 
-export default new EmployeeService(prisma.employee);
+export default new DepartmentService(prisma.department);

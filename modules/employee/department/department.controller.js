@@ -1,0 +1,128 @@
+import { SuccessResponseDto } from "../../../common/dtos/successResponseDto.js";
+import catchAsync from "../../../common/catchAsync.js";
+import departmentService from "./department.service.js";
+
+const departmentController = {
+  getAllDepartments: async (req, res) => {
+    try {
+      const { page: tmpPage, limit: tmpLimit, ...departmentInfor } = req.query;
+      const page = parseInt(tmpPage) || 1;
+      const limit = parseInt(tmpLimit) || 100;
+
+      const filter = {};
+
+      Object.entries(departmentInfor).forEach(([key, value]) => {
+        if (value) {
+          const valueArray = Array.isArray(value) ? value : value.split(",");
+          filter.OR = valueArray.map(v => ({
+            [key]: {
+              contains: v,
+              mode: "insensitive",
+            },
+          }));
+        }
+      });
+
+      const options = { page, limit };
+      const where = filter;
+      const include = {
+        manager: true,
+        employees: true,
+      };
+      const departments = await departmentService.read(
+        { where, include },
+        {
+          options,
+        }
+      );
+
+      return res.status(200).json(new SuccessResponseDto(departments));
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: "Internal Server Error" });
+    }
+  },
+
+  getDepartment: async (req, res) => {
+    const { id } = req.params;
+    const department = await departmentService.readById(parseInt(id), {
+      department: true,
+      position: true,
+    });
+
+    if (!department) throw new Error("Department not found");
+    return res.status(200).json(new SuccessResponseDto(department));
+  },
+
+  createDepartment: async (req, res) => {
+    const value = await departmentValidation
+      .createDepartmentValidate()
+      .validateAsync(req.body, {
+        abortEarly: false,
+      });
+
+    const departmentData = {
+      fullName: value.fullName,
+      avatar: value.avatar,
+      gender: value.gender,
+      birthday: value.birthday,
+      citizenId: value.citizenId,
+      phone: value.phone,
+      email: value.email,
+      ethnicity: value.ethnicity,
+      religion: value.religion,
+      education: value.education,
+      major: value.major,
+      siNo: value.siNo,
+      hiNo: value.hiNo,
+      departmentId: value.departmentId,
+      positionId: value.positionId,
+    };
+
+    const newDepartment = await departmentService.create(departmentData);
+
+    return res.status(201).json(new SuccessResponseDto(newDepartment));
+  },
+
+  deleteDepartment: async (req, res) => {},
+
+  updateDepartment: async (req, res) => {
+    const value = await departmentValidation
+      .updateDepartmentValidate()
+      .validateAsync(req.body, {
+        abortEarly: false,
+      });
+
+    const departmentData = {
+      fullName: value.fullName,
+      avatar: value.avatar,
+      gender: value.gender,
+      birthday: value.birthday,
+      citizenId: value.citizenId,
+      phone: value.phone,
+      email: value.email,
+      ethnicity: value.ethnicity,
+      religion: value.religion,
+      education: value.education,
+      major: value.major,
+      siNo: value.siNo,
+      hiNo: value.hiNo,
+      departmentId: value.departmentId,
+      positionId: value.positionId,
+      workStatus: value.workStatus,
+    };
+
+    const updatedDepartment = await departmentService.update(
+      parseInt(req.params.id),
+      departmentData
+    );
+
+    return res.status(200).json(new SuccessResponseDto(updatedDepartment));
+  },
+};
+
+Object.entries(departmentController).forEach(([key, value]) => {
+  departmentController[key] = catchAsync(value);
+});
+
+export default departmentController;

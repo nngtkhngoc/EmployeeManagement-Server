@@ -187,7 +187,10 @@ class EmployeeService extends BaseService {
       }
 
       // Nếu từ chức vụ khác => Manager => set managerId cho department mới
-      if (newPositionName === "manager" || oldPositionName === "manager") {
+      if (
+        newPositionName === "manager" ||
+        (oldPositionName === "manager" && newPositionName !== "employee")
+      ) {
         const updatedDepartment = await departmentService.updateManager(
           tx,
           { id: departmentId || updatedEmployee.departmentId },
