@@ -193,42 +193,6 @@ class EmployeeService extends BaseService {
     });
   }
 
-  async read(params = {}, options = {}) {
-    const { where = {}, include = {}, select, distinct } = params;
-    const { page = 1, limit = 20, sortBy, sortOrder = "asc" } = options;
-
-    const skip = (page - 1) * parseInt(limit);
-    const take = parseInt(limit);
-
-    const queryOptions = {
-      where,
-      include,
-      select,
-      distinct,
-      skip,
-      take,
-    };
-
-    if (sortBy) {
-      queryOptions.orderBy = { [sortBy]: sortOrder };
-    }
-
-    const [data, total] = await Promise.all([
-      this.repository.findMany(queryOptions),
-      this.repository.count({ where }),
-    ]);
-
-    return {
-      data,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
-  }
-
   async readById(id, include) {
     return prisma.employee.findUnique({
       where: { id },
