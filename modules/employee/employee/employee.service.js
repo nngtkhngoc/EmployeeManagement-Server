@@ -48,7 +48,7 @@ class EmployeeService extends BaseService {
       });
 
       if (position.name.toLowerCase() === "manager") {
-        const updatedDepartment = await departmentService.update(
+        const updatedDepartment = await departmentService.updateManager(
           tx,
           { id: parseInt(departmentId) },
           {
@@ -109,6 +109,14 @@ class EmployeeService extends BaseService {
         ["RESIGNED", "TERMINATED", "RETIRED"].includes(workStatus)
       ) {
         await workHistoryService.endWorkHistory(tx, existingEmployee.id);
+
+        if (existingEmployee.position.name == "Manager") {
+          await departmentService.updateManager(
+            tx,
+            { id: existingEmployee.departmentId },
+            { manager: { disconnect: true } }
+          );
+        }
       }
 
       // Nếu có thay đổi phòng ban hoặc vị trí => kiểm tra hợp lệ
@@ -171,7 +179,7 @@ class EmployeeService extends BaseService {
 
       // Nếu từ Manager => chức vụ khác => bỏ managerId trong department cũ
       if (oldPositionName === "manager" && newPositionName !== "manager") {
-        await departmentService.update(
+        await departmentService.updateManager(
           tx,
           { id: existingEmployee.departmentId },
           { manager: { disconnect: true } }
@@ -179,8 +187,8 @@ class EmployeeService extends BaseService {
       }
 
       // Nếu từ chức vụ khác => Manager => set managerId cho department mới
-      if (newPositionName === "manager") {
-        const updatedDepartment = await departmentService.update(
+      if (newPositionName === "manager" || oldPositionName === "manager") {
+        const updatedDepartment = await departmentService.updateManager(
           tx,
           { id: departmentId || updatedEmployee.departmentId },
           { manager: { connect: { id: updatedEmployee.id } } }

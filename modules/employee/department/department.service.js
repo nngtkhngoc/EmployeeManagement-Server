@@ -6,8 +6,7 @@ class EmployeeService extends BaseService {
     super(repository);
   }
 
-  async update(tx, filter, departmentData) {
-    console.log(departmentData);
+  async updateManager(tx, filter, departmentData) {
     return tx.department.update({
       where: filter,
       data: departmentData,
