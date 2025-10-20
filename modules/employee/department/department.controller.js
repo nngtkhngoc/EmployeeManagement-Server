@@ -47,7 +47,12 @@ const departmentController = {
 
   getDepartment: async (req, res) => {
     const { id } = req.params;
-    const department = await departmentService.readById(parseInt(id));
+    const department = await departmentService.readById(parseInt(id), {
+      include: {
+        manager: true,
+        employees: true,
+      },
+    });
 
     if (!department) throw new Error("Phòng ban không tồn tại.");
     return res.status(200).json(new SuccessResponseDto(department));

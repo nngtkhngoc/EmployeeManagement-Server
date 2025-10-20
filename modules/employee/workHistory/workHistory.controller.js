@@ -87,8 +87,10 @@ const workHistoryController = {
   getWorkHistory: async (req, res) => {
     const { id } = req.params;
     const workHistory = await workHistoryService.readById(parseInt(id), {
-      position: true,
-      employee: true,
+      include: {
+        position: true,
+        employee: true,
+      },
     });
 
     if (!workHistory) throw new Error("WorkHistory not found");

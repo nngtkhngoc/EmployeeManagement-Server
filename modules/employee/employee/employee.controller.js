@@ -66,6 +66,17 @@ const employeeController = {
       const include = {
         department: true,
         position: true,
+        managedDepartment: true,
+        contractsAsSigner: true,
+        contractsSigned: true,
+        workHistory: true,
+        leaveApplications: true,
+        updateRequestsMade: true,
+        updateRequestsReviewed: true,
+        payrollDetails: true,
+        attendanceDetails: true,
+        performanceDetails: true,
+        supervisedReports: true,
       };
       const employees = await employeeService.read(
         { where, include },
@@ -84,8 +95,21 @@ const employeeController = {
   getEmployee: async (req, res) => {
     const { id } = req.params;
     const employee = await employeeService.readById(parseInt(id), {
-      department: true,
-      position: true,
+      include: {
+        department: true,
+        position: true,
+        managedDepartment: true,
+        contractsAsSigner: true,
+        contractsSigned: true,
+        workHistory: true,
+        leaveApplications: true,
+        updateRequestsMade: true,
+        updateRequestsReviewed: true,
+        payrollDetails: true,
+        attendanceDetails: true,
+        performanceDetails: true,
+        supervisedReports: true,
+      },
     });
 
     if (!employee) throw new Error("Employee not found");

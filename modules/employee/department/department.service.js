@@ -168,16 +168,6 @@ class DepartmentService extends BaseService {
       return updatedDept;
     });
   }
-
-  async readById(id) {
-    return prisma.department.findUnique({
-      where: { id },
-      include: {
-        manager: true,
-        employees: true,
-      },
-    });
-  }
 }
 
 export default new DepartmentService(prisma.department);

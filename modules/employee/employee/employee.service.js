@@ -71,27 +71,6 @@ class EmployeeService extends BaseService {
     });
   }
 
-  async readById(id) {
-    return prisma.employee.findUnique({
-      where: { id },
-      include: {
-        department: true,
-        position: true,
-        managedDepartment: true,
-        contractsAsSigner: true,
-        contractsSigned: true,
-        workHistory: true,
-        leaveApplications: true,
-        updateRequestsMade: true,
-        updateRequestsReviewed: true,
-        payrollDetails: true,
-        attendanceDetails: true,
-        performanceDetails: true,
-        supervisedReports: true,
-      },
-    });
-  }
-
   async update(id, employeeData) {
     return prisma.$transaction(async tx => {
       const { departmentId, positionId, workStatus } = employeeData;
@@ -201,13 +180,6 @@ class EmployeeService extends BaseService {
       }
 
       return updatedEmployee;
-    });
-  }
-
-  async readById(id, include) {
-    return prisma.employee.findUnique({
-      where: { id },
-      include: include,
     });
   }
 
