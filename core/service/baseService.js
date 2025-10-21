@@ -4,6 +4,7 @@ export const DELETE_OPTION = {
 };
 
 export default class BaseService {
+  DAY_IN_MONTH = 26;
   repository;
   constructor(repository) {
     this.repository = repository;
