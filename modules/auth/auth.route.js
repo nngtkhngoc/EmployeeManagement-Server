@@ -2,7 +2,8 @@ import express from "express";
 import authController from "./auth.controller.js";
 const router = express.Router();
 
-router.route("/").post(authController.signIn);
+router.route("/sign-in").post(authController.signIn);
+router.route("/sign-out").post(authController.signOut);
 //   .post(employeeController.createEmployee);
 
 // router

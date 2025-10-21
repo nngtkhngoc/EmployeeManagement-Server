@@ -29,7 +29,16 @@ const authController = {
     return res.status(200).json(new SuccessResponseDto());
   },
 
-  signOut: async (req, res) => {},
+  signOut: async (req, res) => {
+    const employeeId = req.id;
+    const refreshToken = res.cookie.refreshToken;
+
+    await authService.signOut(employeeId, refreshToken);
+    res.cookie("accessToken", "", { maxAge: 0 });
+    res.cookie("refreshToken", "", { maxAge: 0 });
+
+    return res.status(200).json(new SuccessResponseDto());
+  },
 
   resetPassword: async (req, res) => {},
 
