@@ -23,7 +23,7 @@ model Department {
 
 model Position {
   id          Int           @id @default(autoincrement())
-  name        String        @db.VarChar(100)
+  name        String        @unique @db.VarChar(100)
   createdAt   DateTime      @default(now()) @map("created_at")
   employees   Employee[]
   workHistory WorkHistory[]
@@ -31,7 +31,7 @@ model Position {
 
 model Employee {
   id                     Int                       @id @default(autoincrement())
-  employeeCode           String?                   @map("employee_code") @db.VarChar(5)
+  employeeCode           String?                   @unique @map("employee_code") @db.VarChar(5)
   fullName               String                    @map("full_name")
   avatar                 String?
   workStatus             WorkStatus                @default(WORKING_ONSITE) @map("work_status")
@@ -51,12 +51,13 @@ model Employee {
   isActive               Boolean                   @default(true)
   departmentId           Int?                      @map("department_id")
   positionId             Int?                      @map("position_id")
+  role                   String                    @default("Employee")
   attendanceDetails      AttendanceReportDetail[]
   contractsSigned        Contract[]                @relation("EmployeeContract")
   contractsAsSigner      Contract[]                @relation("SignedByManager")
   managedDepartment      Department?               @relation("DepartmentManager")
-  department             Department?               @relation(fields: [departmentId], references: [id])
-  position               Position?                 @relation(fields: [positionId], references: [id])
+  department             Department?               @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  position               Position?                 @relation(fields: [positionId], references: [id], onDelete: Cascade)
   leaveApplications      LeaveApplication[]
   payrollDetails         PayrollReportDetail[]
   performanceDetails     PerformanceReportDetail[] @relation("PerformanceOfEmployee")
@@ -173,6 +174,7 @@ model PerformanceReportDetail {
   employeeId          Int                            @map("employee_id")
   supervisorId        Int                            @map("supervisor_id")
   performanceReportId Int                            @map("performance_report_id")
+  average_score       Float?
   PayrollReportDetail PayrollReportDetail?
   employee            Employee                       @relation("PerformanceOfEmployee", fields: [employeeId], references: [id], onDelete: Cascade)
   performanceReport   PerformanceReport              @relation(fields: [performanceReportId], references: [id], onDelete: Cascade)
@@ -199,11 +201,11 @@ model PayrollReport {
 
 model PayrollReportDetail {
   id                        Int                     @id @default(autoincrement())
-  basicSalary               Decimal?                 @map("basic_salary")
-  deductions                Decimal?
-  allowances               Decimal?
-  performanceRatio         Float?                   @map("performance_ratio")
-  totalSalary              Decimal?                 @map("total_salary")
+  basicSalary               Int?                    @map("basic_salary")
+  totalSalary               Int?                    @map("total_salary")
+  deductions               Int?                  @map("deductions")
+  allowances               Int?                  @map("allowances")
+  performanceRatio         Float?                @map("performance_ratio")
 
   payrollReportId           Int                     @map("payroll_report_id")
   employeeId                Int                     @map("employee_id")
@@ -271,4 +273,5 @@ enum RequestStatus {
   PENDING
   APPROVED
   NOT_APPROVED
+  IN_REVIEW
 }
