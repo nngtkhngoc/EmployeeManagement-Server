@@ -111,11 +111,6 @@ class EmployeeService extends BaseService {
             where: { id: departmentId },
           });
           if (!department) throw new Error("Phòng ban không tồn tại");
-          const password =
-            existingEmployee.employeeCode + department.departmentCode;
-          const hashedPassword = await hashPassword(password);
-
-          employeeData.password = hashedPassword;
         }
 
         if (positionId) {
