@@ -7,6 +7,8 @@ class WorkHistoryService extends BaseService {
   }
 
   async createWorkHistory(tx, workHistoryData) {
+    console.log(workHistoryData);
+
     return tx.workHistory.create({
       data: {
         startDate: new Date(),
@@ -24,6 +26,7 @@ class WorkHistoryService extends BaseService {
   }
 
   async endWorkHistory(tx, employeeId) {
+    console.log(employeeId);
     return tx.workHistory.updateMany({
       data: {
         endDate: new Date(),
@@ -36,7 +39,8 @@ class WorkHistoryService extends BaseService {
   }
 
   async updateWorkHistory(tx, workHistoryData) {
-    this.endWorkHistory(tx, workHistoryData.employeeId);
+    console.log(workHistoryData);
+    await this.endWorkHistory(tx, workHistoryData.employeeId);
 
     return this.createWorkHistory(tx, workHistoryData);
   }

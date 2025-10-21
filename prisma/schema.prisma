@@ -1,270 +1,271 @@
 generator client {
-    provider        = "prisma-client-js"
-    previewFeatures = ["relationJoins"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Department {
-    id             Int           @id @default(autoincrement())
-    departmentCode String        @map("department_code") @db.VarChar(4)
-    name           String        @db.VarChar(100)
-    foundedAt      DateTime      @map("founded_at")
-    description    String?
-    createdAt      DateTime      @default(now()) @map("created_at")
-    managerId      Int?          @unique @map("manager_id")
-    manager        Employee?     @relation("DepartmentManager", fields: [managerId], references: [id])
-    employees      Employee[]
-    WorkHistory    WorkHistory[]
+  id             Int           @id @default(autoincrement())
+  departmentCode String        @map("department_code") @db.VarChar(4)
+  name           String        @db.VarChar(100)
+  foundedAt      DateTime      @map("founded_at")
+  description    String?
+  createdAt      DateTime      @default(now()) @map("created_at")
+  managerId      Int?          @unique @map("manager_id")
+  manager        Employee?     @relation("DepartmentManager", fields: [managerId], references: [id])
+  employees      Employee[]
+  WorkHistory    WorkHistory[]
 }
 
 model Position {
-    id          Int           @id @default(autoincrement())
-    name        String        @unique @db.VarChar(100)
-    createdAt   DateTime      @default(now()) @map("created_at")
-    employees   Employee[]
-    workHistory WorkHistory[]
+  id          Int           @id @default(autoincrement())
+  name        String        @unique @db.VarChar(100)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  employees   Employee[]
+  workHistory WorkHistory[]
 }
 
 model Employee {
-    id                     Int                       @id @default(autoincrement())
-    employeeCode           String?                   @map("employee_code") @db.VarChar(5)
-    fullName               String                    @map("full_name")
-    avatar                 String?
-    workStatus             WorkStatus                @default(WORKING_ONSITE) @map("work_status")
-    gender                 Gender
-    birthday               DateTime
-    citizenId              String                    @map("citizen_id")
-    phone                  String
-    email                  String
-    ethnicity              String
-    religion               String
-    education              Education
-    major                  String
-    siNo                   String                    @map("si_no")
-    hiNo                   String                    @map("hi_no")
-    createdAt              DateTime                  @default(now()) @map("created_at")
-    password               String
-    isActive               Boolean                   @default(true)
-    departmentId           Int?                      @map("department_id")
-    positionId             Int?                      @map("position_id")
-    attendanceDetails      AttendanceReportDetail[]
-    contractsSigned        Contract[]                @relation("EmployeeContract")
-    contractsAsSigner      Contract[]                @relation("SignedByManager")
-    managedDepartment      Department?               @relation("DepartmentManager")
-    department             Department?               @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-    position               Position?                 @relation(fields: [positionId], references: [id], onDelete: Cascade)
-    leaveApplications      LeaveApplication[]
-    payrollDetails         PayrollReportDetail[]
-    performanceDetails     PerformanceReportDetail[] @relation("PerformanceOfEmployee")
-    supervisedReports      PerformanceReportDetail[] @relation("PerformanceSupervisor")
-    updateRequestsMade     UpdateRequest[]           @relation("RequestedBy")
-    updateRequestsReviewed UpdateRequest[]           @relation("ReviewedBy")
-    workHistory            WorkHistory[]
+  id                     Int                       @id @default(autoincrement())
+  employeeCode           String?                   @unique @map("employee_code") @db.VarChar(5)
+  fullName               String                    @map("full_name")
+  avatar                 String?
+  workStatus             WorkStatus                @default(WORKING_ONSITE) @map("work_status")
+  gender                 Gender
+  birthday               DateTime
+  citizenId              String                    @map("citizen_id")
+  phone                  String
+  email                  String
+  ethnicity              String
+  religion               String
+  education              Education
+  major                  String
+  siNo                   String                    @map("si_no")
+  hiNo                   String                    @map("hi_no")
+  createdAt              DateTime                  @default(now()) @map("created_at")
+  password               String
+  isActive               Boolean                   @default(true)
+  departmentId           Int?                      @map("department_id")
+  positionId             Int?                      @map("position_id")
+  role                   String                    @default("Employee")
+  attendanceDetails      AttendanceReportDetail[]
+  contractsSigned        Contract[]                @relation("EmployeeContract")
+  contractsAsSigner      Contract[]                @relation("SignedByManager")
+  managedDepartment      Department?               @relation("DepartmentManager")
+  department             Department?               @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  position               Position?                 @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  leaveApplications      LeaveApplication[]
+  payrollDetails         PayrollReportDetail[]
+  performanceDetails     PerformanceReportDetail[] @relation("PerformanceOfEmployee")
+  supervisedReports      PerformanceReportDetail[] @relation("PerformanceSupervisor")
+  updateRequestsMade     UpdateRequest[]           @relation("RequestedBy")
+  updateRequestsReviewed UpdateRequest[]           @relation("ReviewedBy")
+  workHistory            WorkHistory[]
 }
 
 model Contract {
-    id           Int            @id @default(autoincrement())
-    contractCode String         @map("contract_code") @db.VarChar(10)
-    type         ContractType
-    startDate    DateTime       @map("start_date")
-    endDate      DateTime       @map("end_date")
-    signedDate   DateTime       @map("signed_date")
-    status       ContractStatus
-    dailySalary  Decimal        @map("daily_salary")
-    allowance    Decimal
-    note         String?
-    attachment   String?
-    createdAt    DateTime       @default(now()) @map("created_at")
-    signedById   Int            @map("signed_by_id")
-    employeeId   Int            @map("employee_id")
-    employee     Employee       @relation("EmployeeContract", fields: [employeeId], references: [id], onDelete: Cascade)
-    signedBy     Employee       @relation("SignedByManager", fields: [signedById], references: [id], onDelete: Cascade)
+  id           Int            @id @default(autoincrement())
+  contractCode String         @map("contract_code") @db.VarChar(10)
+  type         ContractType
+  startDate    DateTime       @map("start_date")
+  endDate      DateTime       @map("end_date")
+  signedDate   DateTime       @map("signed_date")
+  status       ContractStatus
+  dailySalary  Decimal        @map("daily_salary")
+  allowance    Decimal
+  note         String?
+  attachment   String?
+  createdAt    DateTime       @default(now()) @map("created_at")
+  signedById   Int            @map("signed_by_id")
+  employeeId   Int            @map("employee_id")
+  employee     Employee       @relation("EmployeeContract", fields: [employeeId], references: [id], onDelete: Cascade)
+  signedBy     Employee       @relation("SignedByManager", fields: [signedById], references: [id], onDelete: Cascade)
 }
 
 model WorkHistory {
-    id           Int        @id @default(autoincrement())
-    startDate    DateTime   @map("start_date")
-    endDate      DateTime?  @map("end_date")
-    note         String?
-    createdAt    DateTime   @default(now()) @map("created_at")
-    positionId   Int        @map("position_id")
-    employeeId   Int        @map("employee_id")
-    departmentId Int        @map("department_id")
-    department   Department @relation(fields: [departmentId], references: [id])
-    employee     Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-    position     Position   @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  id           Int        @id @default(autoincrement())
+  startDate    DateTime   @map("start_date")
+  endDate      DateTime?  @map("end_date")
+  note         String?
+  createdAt    DateTime   @default(now()) @map("created_at")
+  positionId   Int        @map("position_id")
+  employeeId   Int        @map("employee_id")
+  departmentId Int        @map("department_id")
+  department   Department @relation(fields: [departmentId], references: [id])
+  employee     Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  position     Position   @relation(fields: [positionId], references: [id], onDelete: Cascade)
 }
 
 model LeaveType {
-    id                Int                @id @default(autoincrement())
-    name              String
-    maxDays           Int                @map("max_days")
-    LeaveApplications LeaveApplication[]
+  id                Int                @id @default(autoincrement())
+  name              String
+  maxDays           Int                @map("max_days")
+  LeaveApplications LeaveApplication[]
 }
 
 model LeaveApplication {
-    id          Int           @id @default(autoincrement())
-    startDate   DateTime      @map("start_date")
-    endDate     DateTime      @map("end_date")
-    reason      String
-    status      RequestStatus @default(PENDING)
-    createdAt   DateTime      @default(now()) @map("created_at")
-    employeeId  Int           @map("employee_id")
-    leaveTypeId Int           @map("leave_type_id")
-    employee    Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-    leaveType   LeaveType     @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
+  id          Int           @id @default(autoincrement())
+  startDate   DateTime      @map("start_date")
+  endDate     DateTime      @map("end_date")
+  reason      String
+  status      RequestStatus @default(PENDING)
+  createdAt   DateTime      @default(now()) @map("created_at")
+  employeeId  Int           @map("employee_id")
+  leaveTypeId Int           @map("leave_type_id")
+  employee    Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  leaveType   LeaveType     @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
 }
 
 model UpdateRequest {
-    id            Int           @id @default(autoincrement())
-    oldValue      String        @map("old_value")
-    newValue      String        @map("new_value")
-    reason        String?
-    status        RequestStatus @default(PENDING)
-    requestedById Int           @map("requested_by_id")
-    reviewedById  Int           @map("reviewed_by_id")
-    requestedBy   Employee      @relation("RequestedBy", fields: [requestedById], references: [id], onDelete: Cascade)
-    reviewedBy    Employee      @relation("ReviewedBy", fields: [reviewedById], references: [id], onDelete: Cascade)
+  id            Int           @id @default(autoincrement())
+  oldValue      String        @map("old_value")
+  newValue      String        @map("new_value")
+  reason        String?
+  status        RequestStatus @default(PENDING)
+  requestedById Int           @map("requested_by_id")
+  reviewedById  Int           @map("reviewed_by_id")
+  requestedBy   Employee      @relation("RequestedBy", fields: [requestedById], references: [id], onDelete: Cascade)
+  reviewedBy    Employee      @relation("ReviewedBy", fields: [reviewedById], references: [id], onDelete: Cascade)
 }
 
 model AttendanceReport {
-    id        Int                      @id @default(autoincrement())
-    month     Int
-    year      Int
-    createdAt DateTime                 @default(now()) @map("created_at")
-    details   AttendanceReportDetail[]
+  id        Int                      @id @default(autoincrement())
+  month     Int
+  year      Int
+  createdAt DateTime                 @default(now()) @map("created_at")
+  details   AttendanceReportDetail[]
 }
 
 model AttendanceReportDetail {
-    id                 Int                  @id @default(autoincrement())
-    leaveDays          Int                  @default(0) @map("leave_days")
-    overLeaveDays      Int                  @default(0) @map("over_leave_days")
-    note               String?
-    createdAt          DateTime             @default(now()) @map("created_at")
-    employeeId         Int                  @map("employee_id")
-    attendanceReportId Int                  @map("attendance_report_id")
-    attendanceReport   AttendanceReport     @relation(fields: [attendanceReportId], references: [id], onDelete: Cascade)
-    employee           Employee             @relation(fields: [employeeId], references: [id])
-    payrollDetails     PayrollReportDetail?
+  id                 Int                  @id @default(autoincrement())
+  leaveDays          Int                  @default(0) @map("leave_days")
+  overLeaveDays      Int                  @default(0) @map("over_leave_days")
+  note               String?
+  createdAt          DateTime             @default(now()) @map("created_at")
+  employeeId         Int                  @map("employee_id")
+  attendanceReportId Int                  @map("attendance_report_id")
+  attendanceReport   AttendanceReport     @relation(fields: [attendanceReportId], references: [id], onDelete: Cascade)
+  employee           Employee             @relation(fields: [employeeId], references: [id])
+  payrollDetails     PayrollReportDetail?
 }
 
 model PerformanceCriteria {
-    id                           Int                            @id @default(autoincrement())
-    name                         String
-    description                  String
-    createdAt                    DateTime                       @default(now()) @map("created_at")
-    PerformanceReportDetailScore PerformanceReportDetailScore[]
+  id                           Int                            @id @default(autoincrement())
+  name                         String
+  description                  String
+  createdAt                    DateTime                       @default(now()) @map("created_at")
+  PerformanceReportDetailScore PerformanceReportDetailScore[]
 }
 
 model PerformanceReport {
-    id        Int                       @id @default(autoincrement())
-    month     Int
-    year      Int
-    createdAt DateTime                  @default(now()) @map("created_at")
-    details   PerformanceReportDetail[]
+  id        Int                       @id @default(autoincrement())
+  month     Int
+  year      Int
+  createdAt DateTime                  @default(now()) @map("created_at")
+  details   PerformanceReportDetail[]
 }
 
 model PerformanceReportDetail {
-    id                  Int                            @id @default(autoincrement())
-    employeeId          Int                            @map("employee_id")
-    supervisorId        Int                            @map("supervisor_id")
-    performanceReportId Int                            @map("performance_report_id")
-    average_score       Float?
-    PayrollReportDetail PayrollReportDetail?
-    employee            Employee                       @relation("PerformanceOfEmployee", fields: [employeeId], references: [id], onDelete: Cascade)
-    performanceReport   PerformanceReport              @relation(fields: [performanceReportId], references: [id], onDelete: Cascade)
-    supervisor          Employee                       @relation("PerformanceSupervisor", fields: [supervisorId], references: [id], onDelete: Cascade)
-    scores              PerformanceReportDetailScore[]
+  id                  Int                            @id @default(autoincrement())
+  employeeId          Int                            @map("employee_id")
+  supervisorId        Int                            @map("supervisor_id")
+  performanceReportId Int                            @map("performance_report_id")
+  average_score       Float?
+  PayrollReportDetail PayrollReportDetail?
+  employee            Employee                       @relation("PerformanceOfEmployee", fields: [employeeId], references: [id], onDelete: Cascade)
+  performanceReport   PerformanceReport              @relation(fields: [performanceReportId], references: [id], onDelete: Cascade)
+  supervisor          Employee                       @relation("PerformanceSupervisor", fields: [supervisorId], references: [id], onDelete: Cascade)
+  scores              PerformanceReportDetailScore[]
 }
 
 model PerformanceReportDetailScore {
-    id                        Int                     @id @default(autoincrement())
-    performanceReportDetailId Int                     @map("performance_report_detail_id")
-    performanceCriteriaId     Int                     @map("performance_criteria_id")
-    score                     Float?
-    performanceCriteria       PerformanceCriteria     @relation(fields: [performanceCriteriaId], references: [id], onDelete: Cascade)
-    performanceReportDetail   PerformanceReportDetail @relation(fields: [performanceReportDetailId], references: [id], onDelete: Cascade)
+  id                        Int                     @id @default(autoincrement())
+  performanceReportDetailId Int                     @map("performance_report_detail_id")
+  performanceCriteriaId     Int                     @map("performance_criteria_id")
+  score                     Float?
+  performanceCriteria       PerformanceCriteria     @relation(fields: [performanceCriteriaId], references: [id], onDelete: Cascade)
+  performanceReportDetail   PerformanceReportDetail @relation(fields: [performanceReportDetailId], references: [id], onDelete: Cascade)
 }
 
 model PayrollReport {
-    id        Int                   @id @default(autoincrement())
-    month     Int
-    year      Int
-    createdAt DateTime              @default(now()) @map("created_at")
-    details   PayrollReportDetail[]
+  id        Int                   @id @default(autoincrement())
+  month     Int
+  year      Int
+  createdAt DateTime              @default(now()) @map("created_at")
+  details   PayrollReportDetail[]
 }
 
 model PayrollReportDetail {
-    id                        Int                     @id @default(autoincrement())
-    payrollReportId           Int                     @map("payroll_report_id")
-    employeeId                Int                     @map("employee_id")
-    attendanceReportDetailId  Int                     @unique @map("attendance_report_detail_id")
-    performanceReportDetailId Int                     @unique @map("performance_report_detail_id")
-    attendanceReportDetail    AttendanceReportDetail  @relation(fields: [attendanceReportDetailId], references: [id], onDelete: Cascade)
-    employee                  Employee                @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-    payrollReport             PayrollReport           @relation(fields: [payrollReportId], references: [id], onDelete: Cascade)
-    performanceReportDetail   PerformanceReportDetail @relation(fields: [performanceReportDetailId], references: [id], onDelete: Cascade)
+  id                        Int                     @id @default(autoincrement())
+  payrollReportId           Int                     @map("payroll_report_id")
+  employeeId                Int                     @map("employee_id")
+  attendanceReportDetailId  Int                     @unique @map("attendance_report_detail_id")
+  performanceReportDetailId Int                     @unique @map("performance_report_detail_id")
+  attendanceReportDetail    AttendanceReportDetail  @relation(fields: [attendanceReportDetailId], references: [id], onDelete: Cascade)
+  employee                  Employee                @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  payrollReport             PayrollReport           @relation(fields: [payrollReportId], references: [id], onDelete: Cascade)
+  performanceReportDetail   PerformanceReportDetail @relation(fields: [performanceReportDetailId], references: [id], onDelete: Cascade)
 }
 
 enum WorkStatus {
-    WORKING_ONSITE
-    WORK_FROM_HOME
-    BUSINESS_TRIP
-    TRAINING
-    ON_LEAVE_PERSONAL
-    ON_LEAVE_SICK
-    ON_LEAVE_MATERNITY
-    ON_LEAVE_VACATION
-    OFF_DUTY
-    ABSENT
-    RESIGNED
-    TERMINATED
-    RETIRED
+  WORKING_ONSITE
+  WORK_FROM_HOME
+  BUSINESS_TRIP
+  TRAINING
+  ON_LEAVE_PERSONAL
+  ON_LEAVE_SICK
+  ON_LEAVE_MATERNITY
+  ON_LEAVE_VACATION
+  OFF_DUTY
+  ABSENT
+  RESIGNED
+  TERMINATED
+  RETIRED
 }
 
 enum Gender {
-    MALE
-    FEMALE
-    OTHER
-    PREFER_NOT_TO_SAY
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
 }
 
 enum Education {
-    HIGH_SCHOOL
-    ASSOCIATE_DEGREE
-    BACHELOR_DEGREE
-    MASTER_DEGREE
-    DOCTORATE_DEGREE
-    POST_DOCTORAL
-    VOCATIONAL_TRAINING
-    OTHER
+  HIGH_SCHOOL
+  ASSOCIATE_DEGREE
+  BACHELOR_DEGREE
+  MASTER_DEGREE
+  DOCTORATE_DEGREE
+  POST_DOCTORAL
+  VOCATIONAL_TRAINING
+  OTHER
 }
 
 enum ContractType {
-    PART_TIME
-    INTERNSHIP
-    PROBATION
-    TEMPORARY
-    FREELANCE
-    OUTSOURCE
+  PART_TIME
+  INTERNSHIP
+  PROBATION
+  TEMPORARY
+  FREELANCE
+  OUTSOURCE
 }
 
 enum ContractStatus {
-    DRAFT
-    ACTIVE
-    EXPIRED
-    TERMINATED
-    PENDING
-    RENEWED
+  DRAFT
+  ACTIVE
+  EXPIRED
+  TERMINATED
+  PENDING
+  RENEWED
 }
 
 enum RequestStatus {
-    PENDING
-    IN_REVIEW
-    APPROVED
-    NOT_APPROVED
+  PENDING
+  APPROVED
+  NOT_APPROVED
+  IN_REVIEW
 }
