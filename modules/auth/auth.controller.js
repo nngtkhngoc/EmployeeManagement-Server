@@ -30,8 +30,8 @@ const authController = {
   },
 
   signOut: async (req, res) => {
-    const employeeId = req.id;
-    const refreshToken = res.cookie.refreshToken;
+    const employeeId = req.user.id;
+    const refreshToken = req.cookies.refreshToken;
 
     await authService.signOut(employeeId, refreshToken);
     res.cookie("accessToken", "", { maxAge: 0 });

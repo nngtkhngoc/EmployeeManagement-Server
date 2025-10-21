@@ -3,14 +3,14 @@ import redis from "../config/redis.js";
 
 export async function generateAccessTokenAndRefreshToken(employeeData) {
   const accessToken = jwt.sign(
-    { data: employeeData },
+    { data: { id: employeeData.id, role: employeeData.role } },
     process.env.ACCESS_TOKEN_SECRET,
     {
       expiresIn: "5m",
     }
   );
   const refreshToken = jwt.sign(
-    { data: employeeData },
+    { data: { id: employeeData.id, role: employeeData.role } },
     process.env.REFRESH_TOKEN_SECRET,
     { expiresIn: "7d" }
   );
