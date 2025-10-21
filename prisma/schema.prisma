@@ -1,39 +1,37 @@
-datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
-}
-
 generator client {
     provider        = "prisma-client-js"
     previewFeatures = ["relationJoins"]
 }
 
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
 model Department {
-    id             Int      @id @default(autoincrement())
-    departmentCode String   @map("department_code") @db.VarChar(4)
-    name           String   @db.VarChar(100)
-    foundedAt      DateTime @map("founded_at")
-    description    String?  @db.Text
-    createdAt      DateTime @default(now()) @map("created_at")
-
-    employees Employee[]
-
-    manager   Employee? @relation("DepartmentManager", fields: [managerId], references: [id], onDelete: SetNull)
-    managerId Int?      @unique @map("manager_id")
+    id             Int           @id @default(autoincrement())
+    departmentCode String        @map("department_code") @db.VarChar(4)
+    name           String        @db.VarChar(100)
+    foundedAt      DateTime      @map("founded_at")
+    description    String?
+    createdAt      DateTime      @default(now()) @map("created_at")
+    managerId      Int?          @unique @map("manager_id")
+    manager        Employee?     @relation("DepartmentManager", fields: [managerId], references: [id])
+    employees      Employee[]
+    WorkHistory    WorkHistory[]
 }
 
 model Position {
-    id        Int      @id @default(autoincrement())
-    name      String   @db.VarChar(100)
-    createdAt DateTime @default(now()) @map("created_at")
-
+    id          Int           @id @default(autoincrement())
+    name        String        @unique @db.VarChar(100)
+    createdAt   DateTime      @default(now()) @map("created_at")
     employees   Employee[]
     workHistory WorkHistory[]
 }
 
 model Employee {
     id           Int        @id @default(autoincrement())
-    employeeCode String?    @map("employee_code") @db.VarChar(5)
+    employeeCode String?    @unique @map("employee_code") @db.VarChar(5)
     fullName     String     @map("full_name")
     avatar       String?
     workStatus   WorkStatus @default(WORKING_ONSITE) @map("work_status")
@@ -51,26 +49,23 @@ model Employee {
     createdAt    DateTime   @default(now()) @map("created_at")
     password     String
     isActive     Boolean    @default(true)
+    role         String     @default("Employee")
 
-    department   Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
-    departmentId Int?        @map("department_id")
-
-    position   Position? @relation(fields: [positionId], references: [id], onDelete: SetNull)
-    positionId Int?      @map("position_id")
-
-    managedDepartment Department? @relation("DepartmentManager")
-
-    // Relationships
+    departmentId           Int?                      @map("department_id")
+    positionId             Int?                      @map("position_id")
+    attendanceDetails      AttendanceReportDetail[]
     contractsSigned        Contract[]                @relation("EmployeeContract")
     contractsAsSigner      Contract[]                @relation("SignedByManager")
-    workHistory            WorkHistory[]
+    managedDepartment      Department?               @relation("DepartmentManager")
+    department             Department?               @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+    position               Position?                 @relation(fields: [positionId], references: [id], onDelete: Cascade)
     leaveApplications      LeaveApplication[]
-    updateRequestsMade     UpdateRequest[]           @relation("RequestedBy")
-    updateRequestsReviewed UpdateRequest[]           @relation("ReviewedBy")
     payrollDetails         PayrollReportDetail[]
-    attendanceDetails      AttendanceReportDetail[]
     performanceDetails     PerformanceReportDetail[] @relation("PerformanceOfEmployee")
     supervisedReports      PerformanceReportDetail[] @relation("PerformanceSupervisor")
+    updateRequestsMade     UpdateRequest[]           @relation("RequestedBy")
+    updateRequestsReviewed UpdateRequest[]           @relation("ReviewedBy")
+    workHistory            WorkHistory[]
 }
 
 model Contract {
@@ -86,26 +81,24 @@ model Contract {
     note         String?
     attachment   String?
     createdAt    DateTime       @default(now()) @map("created_at")
-
-    signedBy   Employee @relation("SignedByManager", fields: [signedById], references: [id], onDelete: Cascade)
-    signedById Int      @map("signed_by_id")
-
-    employee   Employee @relation("EmployeeContract", fields: [employeeId], references: [id], onDelete: Cascade)
-    employeeId Int      @map("employee_id")
+    signedById   Int            @map("signed_by_id")
+    employeeId   Int            @map("employee_id")
+    employee     Employee       @relation("EmployeeContract", fields: [employeeId], references: [id], onDelete: Cascade)
+    signedBy     Employee       @relation("SignedByManager", fields: [signedById], references: [id], onDelete: Cascade)
 }
 
 model WorkHistory {
-    id        Int      @id @default(autoincrement())
-    startDate DateTime @map("start_date")
-    endDate   DateTime @map("end_date")
-    note      String?
-    createdAt DateTime @default(now()) @map("created_at")
-
-    position   Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
-    positionId Int      @map("position_id")
-
-    employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-    employeeId Int      @map("employee_id")
+    id            Int        @id @default(autoincrement())
+    startDate     DateTime   @map("start_date")
+    endDate       DateTime?  @map("end_date")
+    note          String?
+    createdAt     DateTime   @default(now()) @map("created_at")
+    positionId    Int        @map("position_id")
+    employeeId    Int        @map("employee_id")
+    department_id Int
+    Department    Department @relation(fields: [department_id], references: [id])
+    employee      Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+    position      Position   @relation(fields: [positionId], references: [id], onDelete: Cascade)
 }
 
 model LeaveType {
@@ -116,32 +109,28 @@ model LeaveType {
 }
 
 model LeaveApplication {
-    id        Int           @id @default(autoincrement())
-    startDate DateTime      @map("start_date")
-    endDate   DateTime      @map("end_date")
-    reason    String
-    status    RequestStatus @default(PENDING)
-    createdAt DateTime      @default(now()) @map("created_at")
-
-    employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-    employeeId Int      @map("employee_id")
-
-    leaveType   LeaveType @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
-    leaveTypeId Int       @map("leave_type_id")
+    id          Int           @id @default(autoincrement())
+    startDate   DateTime      @map("start_date")
+    endDate     DateTime      @map("end_date")
+    reason      String
+    status      RequestStatus @default(PENDING)
+    createdAt   DateTime      @default(now()) @map("created_at")
+    employeeId  Int           @map("employee_id")
+    leaveTypeId Int           @map("leave_type_id")
+    employee    Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+    leaveType   LeaveType     @relation(fields: [leaveTypeId], references: [id], onDelete: Cascade)
 }
 
 model UpdateRequest {
-    id       Int           @id @default(autoincrement())
-    oldValue String        @map("old_value")
-    newValue String        @map("new_value")
-    reason   String?
-    status   RequestStatus @default(PENDING)
-
-    requestedBy   Employee @relation("RequestedBy", fields: [requestedById], references: [id], onDelete: Cascade)
-    requestedById Int      @map("requested_by_id")
-
-    reviewedBy   Employee @relation("ReviewedBy", fields: [reviewedById], references: [id], onDelete: Cascade)
-    reviewedById Int      @map("reviewed_by_id")
+    id            Int           @id @default(autoincrement())
+    oldValue      String        @map("old_value")
+    newValue      String        @map("new_value")
+    reason        String?
+    status        RequestStatus @default(PENDING)
+    requestedById Int           @map("requested_by_id")
+    reviewedById  Int           @map("reviewed_by_id")
+    requestedBy   Employee      @relation("RequestedBy", fields: [requestedById], references: [id], onDelete: Cascade)
+    reviewedBy    Employee      @relation("ReviewedBy", fields: [reviewedById], references: [id], onDelete: Cascade)
 }
 
 model AttendanceReport {
@@ -153,19 +142,16 @@ model AttendanceReport {
 }
 
 model AttendanceReportDetail {
-    id            Int      @id @default(autoincrement())
-    leaveDays     Int      @default(0) @map("leave_days")
-    overLeaveDays Int      @default(0) @map("over_leave_days")
-    note          String?  @db.Text
-    createdAt     DateTime @default(now()) @map("created_at")
-
-    employee   Employee @relation(fields: [employeeId], references: [id])
-    employeeId Int      @map("employee_id")
-
-    attendanceReport   AttendanceReport @relation(fields: [attendanceReportId], references: [id], onDelete: Cascade)
-    attendanceReportId Int              @map("attendance_report_id")
-
-    payrollDetails PayrollReportDetail?
+    id                 Int                  @id @default(autoincrement())
+    leaveDays          Int                  @default(0) @map("leave_days")
+    overLeaveDays      Int                  @default(0) @map("over_leave_days")
+    note               String?
+    createdAt          DateTime             @default(now()) @map("created_at")
+    employeeId         Int                  @map("employee_id")
+    attendanceReportId Int                  @map("attendance_report_id")
+    attendanceReport   AttendanceReport     @relation(fields: [attendanceReportId], references: [id], onDelete: Cascade)
+    employee           Employee             @relation(fields: [employeeId], references: [id])
+    payrollDetails     PayrollReportDetail?
 }
 
 model PerformanceCriteria {
@@ -185,29 +171,25 @@ model PerformanceReport {
 }
 
 model PerformanceReportDetail {
-    id Int @id @default(autoincrement())
-
-    employee   Employee @relation("PerformanceOfEmployee", fields: [employeeId], references: [id], onDelete: Cascade)
-    employeeId Int      @map("employee_id")
-
-    supervisor   Employee @relation("PerformanceSupervisor", fields: [supervisorId], references: [id], onDelete: Cascade)
-    supervisorId Int      @map("supervisor_id")
-
-    performanceReport   PerformanceReport @relation(fields: [performanceReportId], references: [id], onDelete: Cascade)
-    performanceReportId Int               @map("performance_report_id")
-
-    scores              PerformanceReportDetailScore[]
+    id                  Int                            @id @default(autoincrement())
+    employeeId          Int                            @map("employee_id")
+    supervisorId        Int                            @map("supervisor_id")
+    performanceReportId Int                            @map("performance_report_id")
+    average_score       Float?
     PayrollReportDetail PayrollReportDetail?
+    employee            Employee                       @relation("PerformanceOfEmployee", fields: [employeeId], references: [id], onDelete: Cascade)
+    performanceReport   PerformanceReport              @relation(fields: [performanceReportId], references: [id], onDelete: Cascade)
+    supervisor          Employee                       @relation("PerformanceSupervisor", fields: [supervisorId], references: [id], onDelete: Cascade)
+    scores              PerformanceReportDetailScore[]
 }
 
 model PerformanceReportDetailScore {
-    id Int @id @default(autoincrement())
-
-    performanceReportDetail   PerformanceReportDetail @relation(fields: [performanceReportDetailId], references: [id], onDelete: Cascade)
+    id                        Int                     @id @default(autoincrement())
     performanceReportDetailId Int                     @map("performance_report_detail_id")
-
-    performanceCriteria   PerformanceCriteria @relation(fields: [performanceCriteriaId], references: [id], onDelete: Cascade)
-    performanceCriteriaId Int                 @map("performance_criteria_id")
+    performanceCriteriaId     Int                     @map("performance_criteria_id")
+    score                     Float?
+    performanceCriteria       PerformanceCriteria     @relation(fields: [performanceCriteriaId], references: [id], onDelete: Cascade)
+    performanceReportDetail   PerformanceReportDetail @relation(fields: [performanceReportDetailId], references: [id], onDelete: Cascade)
 }
 
 model PayrollReport {
@@ -219,19 +201,15 @@ model PayrollReport {
 }
 
 model PayrollReportDetail {
-    id Int @id @default(autoincrement())
-
-    payrollReport   PayrollReport @relation(fields: [payrollReportId], references: [id], onDelete: Cascade)
-    payrollReportId Int           @map("payroll_report_id")
-
-    employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-    employeeId Int      @map("employee_id")
-
-    attendanceReportDetail   AttendanceReportDetail @relation(fields: [attendanceReportDetailId], references: [id], onDelete: Cascade)
-    attendanceReportDetailId Int                    @unique @map("attendance_report_detail_id")
-
-    performanceReportDetail   PerformanceReportDetail @relation(fields: [performanceReportDetailId], references: [id], onDelete: Cascade)
+    id                        Int                     @id @default(autoincrement())
+    payrollReportId           Int                     @map("payroll_report_id")
+    employeeId                Int                     @map("employee_id")
+    attendanceReportDetailId  Int                     @unique @map("attendance_report_detail_id")
     performanceReportDetailId Int                     @unique @map("performance_report_detail_id")
+    attendanceReportDetail    AttendanceReportDetail  @relation(fields: [attendanceReportDetailId], references: [id], onDelete: Cascade)
+    employee                  Employee                @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+    payrollReport             PayrollReport           @relation(fields: [payrollReportId], references: [id], onDelete: Cascade)
+    performanceReportDetail   PerformanceReportDetail @relation(fields: [performanceReportDetailId], references: [id], onDelete: Cascade)
 }
 
 enum WorkStatus {
@@ -290,4 +268,5 @@ enum RequestStatus {
     PENDING
     APPROVED
     NOT_APPROVED
+    IN_REVIEW
 }

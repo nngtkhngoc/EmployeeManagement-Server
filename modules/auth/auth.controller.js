@@ -1,0 +1,43 @@
+import { SuccessResponseDto } from "../../common/dtos/successResponseDto.js";
+import catchAsync from "../../common/catchAsync.js";
+
+import authService from "./auth.service.js";
+import authValidation from "../../validations/auth.validation.js";
+
+const authController = {
+  signIn: async (req, res) => {
+    await authValidation.signInValidate().validateAsync(req.body, {
+      abortEarly: false,
+    });
+
+    const token = await authService.signIn(req.body);
+
+    res.cookie("refreshToken", token.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+
+    res.cookie("accessToken", token.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json(new SuccessResponseDto());
+  },
+
+  signOut: async (req, res) => {},
+
+  resetPassword: async (req, res) => {},
+
+  signInGoogle: async (req, res) => {},
+};
+
+Object.entries(authController).forEach(([key, value]) => {
+  authController[key] = catchAsync(value);
+});
+
+export default authController;
