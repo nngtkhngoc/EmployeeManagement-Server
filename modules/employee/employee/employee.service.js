@@ -1,6 +1,7 @@
 import BaseService from "../../../core/service/baseService.js";
-import { prisma } from "../../../config/db.js";
 import { hashPassword } from "../../../config/bcrypt.js";
+import { prisma } from "../../../config/db.js";
+
 import workHistoryService from "../workHistory/workHistory.service.js";
 import departmentService from "../department/department.service.js";
 

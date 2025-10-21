@@ -1,5 +1,6 @@
 import { SuccessResponseDto } from "../../../common/dtos/successResponseDto.js";
 import catchAsync from "../../../common/catchAsync.js";
+
 import workHistoryService from "./workHistory.service.js";
 
 const workHistoryController = {

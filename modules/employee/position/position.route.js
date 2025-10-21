@@ -1,4 +1,5 @@
 import express from "express";
+
 import positionController from "./position.controller.js";
 
 const router = express.Router();

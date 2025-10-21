@@ -1,6 +1,7 @@
 import { SuccessResponseDto } from "../../../common/dtos/successResponseDto.js";
-import employeeValidation from "../../../validations/employee.validation.js";
 import catchAsync from "../../../common/catchAsync.js";
+
+import employeeValidation from "../../../validations/employee.validation.js";
 import employeeService from "./employee.service.js";
 
 const employeeController = {

@@ -1,8 +1,8 @@
 import { SuccessResponseDto } from "../../../common/dtos/successResponseDto.js";
 import catchAsync from "../../../common/catchAsync.js";
-import departmentService from "./department.service.js";
-import employeeService from "../employee/employee.service.js";
+
 import departmentValidation from "../../../validations/department.validation.js";
+import departmentService from "./department.service.js";
 
 const departmentController = {
   getAllDepartments: async (req, res) => {

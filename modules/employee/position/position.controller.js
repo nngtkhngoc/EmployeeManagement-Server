@@ -1,7 +1,8 @@
 import { SuccessResponseDto } from "../../../common/dtos/successResponseDto.js";
 import catchAsync from "../../../common/catchAsync.js";
-import positionService from "./position.service.js";
+
 import positionValidation from "../../../validations/position.validation.js";
+import positionService from "./position.service.js";
 
 const positionController = {
   getAllPositions: async (req, res) => {

@@ -1,6 +1,5 @@
 import BaseService from "../../../core/service/baseService.js";
 import { prisma } from "../../../config/db.js";
-import employeeService from "../employee/employee.service.js";
 
 class DepartmentService extends BaseService {
   constructor(repository) {
