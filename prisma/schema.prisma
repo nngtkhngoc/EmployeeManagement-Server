@@ -201,6 +201,12 @@ model PayrollReport {
 
 model PayrollReportDetail {
   id                        Int                     @id @default(autoincrement())
+  basicSalary               Int?                    @map("basic_salary")
+  totalSalary               Int?                    @map("total_salary")
+  deductions               Int?                  @map("deductions")
+  allowances               Int?                  @map("allowances")
+  performanceRatio         Float?                @map("performance_ratio")
+
   payrollReportId           Int                     @map("payroll_report_id")
   employeeId                Int                     @map("employee_id")
   attendanceReportDetailId  Int                     @unique @map("attendance_report_detail_id")
