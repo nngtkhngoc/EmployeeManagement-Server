@@ -18,14 +18,14 @@ export default class BaseService {
     return this.repository.create({ data, skipDuplicates: true });
   }
 
-  async read(filter = {}, options = {}) {
+  async read(queryObj = {}, options = {}) {
     const { page = 1, limit = 20, sortBy, sortOrder = "asc" } = options;
 
     const skip = (page - 1) * parseInt(limit);
     const take = parseInt(limit);
 
     const queryOptions = {
-      ...filter,
+      ...queryObj,
       skip,
       take,
     };
@@ -36,7 +36,7 @@ export default class BaseService {
 
     const [data, total] = await Promise.all([
       this.repository.findMany(queryOptions),
-      this.repository.count({ where: filter.where }),
+      this.repository.count({ where: queryObj.where }),
     ]);
 
     return {
@@ -50,13 +50,14 @@ export default class BaseService {
     };
   }
 
-  async readOne(filter) {
-    return this.repository.findFirst(filter);
+  async readOne(queryObj) {
+    return this.repository.findFirst(queryObj);
   }
 
-  async readById(id) {
+  async readById(id, queryObj = {}) {
     return this.repository.findUnique({
       where: { id },
+      ...queryObj,
     });
   }
 
@@ -68,7 +69,7 @@ export default class BaseService {
   }
 
   async updateMany(filter) {
-    return this.repository.update({
+    return this.repository.updateMany({
       where: filter,
       data: this.removeUndefindedProps(data),
     });
