@@ -87,17 +87,17 @@ model Contract {
 }
 
 model WorkHistory {
-  id            Int        @id @default(autoincrement())
-  startDate     DateTime   @map("start_date")
-  endDate       DateTime?  @map("end_date")
-  note          String?
-  createdAt     DateTime   @default(now()) @map("created_at")
-  positionId    Int        @map("position_id")
-  employeeId    Int        @map("employee_id")
-  department_id Int
-  Department    Department @relation(fields: [department_id], references: [id])
-  employee      Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  position      Position   @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  id           Int        @id @default(autoincrement())
+  startDate    DateTime   @map("start_date")
+  endDate      DateTime?  @map("end_date")
+  note         String?
+  createdAt    DateTime   @default(now()) @map("created_at")
+  positionId   Int        @map("position_id")
+  employeeId   Int        @map("employee_id")
+  departmentId Int        @map("department_id")
+  department   Department @relation(fields: [departmentId], references: [id])
+  employee     Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  position     Position   @relation(fields: [positionId], references: [id], onDelete: Cascade)
 }
 
 model LeaveType {

@@ -1,3 +1,6 @@
+import workHistoryRouter from "../modules/employee/workHistory/workHistory.route.js";
+import departmentRouter from "../modules/employee/department/department.route.js";
+import positionRouter from "../modules/employee/position/position.route.js";
 import employeeRouter from "../modules/employee/employee.route.js";
 import authRouter from "../modules/auth/auth.route.js";
 import updateRequestRouter from "../modules/update-request/update-request.route.js";
@@ -20,4 +23,7 @@ export const routes = app => {
   app.use("/api/attendance-reports", attendanceRouter);
   app.use("/api/payroll-reports", payrollRouter);
   app.use("/api/attendance-report-details", attendanceReportDetailRouter);
+  app.use("/api/work-history", workHistoryRouter);
+  app.use("/api/department", departmentRouter);
+  app.use("/api/postion", positionRouter);
 };
