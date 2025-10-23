@@ -1,7 +1,7 @@
 import workHistoryRouter from "../modules/employee/workHistory/workHistory.route.js";
 import departmentRouter from "../modules/employee/department/department.route.js";
 import positionRouter from "../modules/employee/position/position.route.js";
-import employeeRouter from "../modules/employee/employee.route.js";
+import employeeRouter from "../modules/employee/employee/employee.route.js";
 import authRouter from "../modules/auth/auth.route.js";
 import updateRequestRouter from "../modules/update-request/update-request.route.js";
 import payrollRouter from "../modules/payroll/payroll.route.js";
@@ -13,7 +13,7 @@ import contractRouter from "../modules/contract/contract.route.js";
 
 export const routes = app => {
   app.use("/healthcheck", (req, res) => res.status(200).send("OK"));
-  
+
   app.use("/api/employee", employeeRouter);
   app.use("/api/contract", contractRouter);
   app.use("/api/update-request", updateRequestRouter);
