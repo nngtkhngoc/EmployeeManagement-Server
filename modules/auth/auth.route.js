@@ -5,6 +5,7 @@ const router = express.Router();
 
 router.route("/sign-in").post(authController.signIn);
 router.route("/sign-out").post(verifyToken, authController.signOut);
+router.route("/me").get(verifyToken, authController.getProfile);
 //   .post(employeeController.createEmployee);
 
 // router

@@ -30,10 +30,10 @@ const authController = {
   },
 
   signOut: async (req, res) => {
-    const employeeId = req.user.id;
+    const id = req.user.id;
     const refreshToken = req.cookies.refreshToken;
 
-    await authService.signOut(employeeId, refreshToken);
+    await authService.signOut(id, refreshToken);
     res.cookie("accessToken", "", { maxAge: 0 });
     res.cookie("refreshToken", "", { maxAge: 0 });
 
@@ -43,6 +43,14 @@ const authController = {
   resetPassword: async (req, res) => {},
 
   signInGoogle: async (req, res) => {},
+
+  getProfile: async (req, res) => {
+    const id = req.user.id;
+
+    const user = await authService.readById(id);
+
+    return res.status(200).json(new SuccessResponseDto(user));
+  },
 };
 
 Object.entries(authController).forEach(([key, value]) => {
