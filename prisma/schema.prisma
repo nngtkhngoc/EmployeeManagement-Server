@@ -37,15 +37,15 @@ model Employee {
   workStatus             WorkStatus                @default(WORKING_ONSITE) @map("work_status")
   gender                 Gender
   birthday               DateTime
-  citizenId              String                    @map("citizen_id")
-  phone                  String
-  email                  String
+  citizenId              String                    @unique @map("citizen_id")
+  phone                  String                    @unique
+  email                  String                    @unique
   ethnicity              String
   religion               String
   education              Education
   major                  String
-  siNo                   String                    @map("si_no")
-  hiNo                   String                    @map("hi_no")
+  siNo                   String                    @unique @map("si_no")
+  hiNo                   String                    @unique @map("hi_no")
   createdAt              DateTime                  @default(now()) @map("created_at")
   password               String
   isActive               Boolean                   @default(true)
@@ -201,20 +201,26 @@ model PayrollReport {
 
 model PayrollReportDetail {
   id                        Int                     @id @default(autoincrement())
-  basicSalary               Int?                    @map("basic_salary")
-  totalSalary               Int?                    @map("total_salary")
-  deductions               Int?                  @map("deductions")
-  allowances               Int?                  @map("allowances")
-  performanceRatio         Float?                @map("performance_ratio")
-
   payrollReportId           Int                     @map("payroll_report_id")
   employeeId                Int                     @map("employee_id")
   attendanceReportDetailId  Int                     @unique @map("attendance_report_detail_id")
   performanceReportDetailId Int                     @unique @map("performance_report_detail_id")
+  allowances                Int?                    @map("allowances")
+  basicSalary               Int?                    @map("basic_salary")
+  deductions                Int?                    @map("deductions")
+  performanceRatio          Float?                  @map("performance_ratio")
+  totalSalary               Int?                    @map("total_salary")
   attendanceReportDetail    AttendanceReportDetail  @relation(fields: [attendanceReportDetailId], references: [id], onDelete: Cascade)
   employee                  Employee                @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   payrollReport             PayrollReport           @relation(fields: [payrollReportId], references: [id], onDelete: Cascade)
   performanceReportDetail   PerformanceReportDetail @relation(fields: [performanceReportDetailId], references: [id], onDelete: Cascade)
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  token     String
+  expiresAt DateTime @map("expires_at")
 }
 
 enum WorkStatus {
