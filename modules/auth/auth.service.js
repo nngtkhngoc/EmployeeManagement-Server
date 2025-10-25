@@ -1,6 +1,6 @@
 import BaseService from "../../core/service/baseService.js";
 import { prisma } from "../../config/db.js";
-import { comparePassword } from "../../config/bcrypt.js";
+import { comparePassword, hashPassword } from "../../config/bcrypt.js";
 import { generateAccessTokenAndRefreshToken } from "../../utils/generateAccessTokenAndRefreshToken.js";
 import redis from "../../config/redis.js";
 import crypto from "crypto";
@@ -35,7 +35,7 @@ class AuthService extends BaseService {
     await redis.del(`refresh:employee:${employeeId}:${refreshToken}`);
   }
 
-  async resetPassword(email) {
+  async requestPasswordReset(email) {
     return await prisma.$transaction(async tx => {
       const validUser = await tx.employee.findUnique({ where: { email } });
       if (!validUser) throw new Error("Không tồn tại người dùng này.");
@@ -59,7 +59,7 @@ class AuthService extends BaseService {
 
       await sendEmail(
         validUser.email,
-        "Đặt lại mật khẩu của bạn",
+        "[WorkWise] ĐẶT LẠI MẬT KHẨU",
         `
         <h2>Xin chào ${validUser.name || "bạn"},</h2>
         <p>Bạn vừa yêu cầu đặt lại mật khẩu cho tài khoản WorkWise của mình.</p>
@@ -71,6 +71,31 @@ class AuthService extends BaseService {
       );
 
       return { message: "Reset link sent successfully." };
+    });
+  }
+
+  async resetPassword(token, password) {
+    const validTokens = await prisma.passwordResetToken.findMany({
+      where: { expiresAt: { gt: new Date() } },
+    });
+
+    const record = await Promise.any(
+      validTokens.map(async r => {
+        const match = await bcrypt.compare(token, r.token);
+        return match ? r : null;
+      })
+    ).catch(() => null);
+
+    if (!record) throw new Error("Token không hợp lệ hoặc đã hết hạn");
+
+    const hashedPassword = await hashPassword(password);
+    await prisma.employee.update({
+      where: { id: record.userId },
+      data: { password: hashedPassword },
+    });
+
+    await prisma.passwordResetToken.delete({
+      where: { id: record.id },
     });
   }
 }

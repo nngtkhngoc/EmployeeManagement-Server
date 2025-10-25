@@ -40,11 +40,27 @@ const authController = {
     return res.status(200).json(new SuccessResponseDto());
   },
 
-  resetPassword: async (req, res) => {
+  requestPasswordReset: async (req, res) => {
     const { email } = req.body;
 
-    await authService.resetPassword(email);
+    await authService.requestPasswordReset(email);
     return res.status(200).json(new SuccessResponseDto("Email đã được gửi."));
+  },
+
+  resetPassword: async (req, res) => {
+    await authValidation.resetPasswordValidate().validateAsync(req.body, {
+      abortEarly: false,
+    });
+
+    const { token, password, confirmPassword } = req.body;
+    if (password != confirmPassword)
+      throw new Error("Mật khẩu xác nhận không khớp");
+
+    await authService.resetPassword(token, password);
+
+    return res
+      .status(200)
+      .json(new SuccessResponseDto("Đặt lại mật khẩu thành công!"));
   },
 
   signInGoogle: async (req, res) => {},
