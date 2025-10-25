@@ -26,7 +26,7 @@ const authController = {
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
-    return res.status(200).json(new SuccessResponseDto());
+    return res.status(200).json(new SuccessResponseDto(req.body.employeeCode));
   },
 
   signOut: async (req, res) => {
@@ -40,7 +40,12 @@ const authController = {
     return res.status(200).json(new SuccessResponseDto());
   },
 
-  resetPassword: async (req, res) => {},
+  resetPassword: async (req, res) => {
+    const { email } = req.body;
+
+    await authService.resetPassword(email);
+    return res.status(200).json(new SuccessResponseDto("Email đã được gửi."));
+  },
 
   signInGoogle: async (req, res) => {},
 
