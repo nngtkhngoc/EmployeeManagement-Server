@@ -122,14 +122,14 @@ model LeaveApplication {
 
 model UpdateRequest {
   id            Int           @id @default(autoincrement())
-  oldValue      String        @map("old_value")
-  newValue      String        @map("new_value")
-  reason        String?
+  content       String        @db.Text // Nội dung đơn xin thay đổi
   status        RequestStatus @default(PENDING)
   requestedById Int           @map("requested_by_id")
-  reviewedById  Int           @map("reviewed_by_id")
+  reviewedById  Int?          @map("reviewed_by_id")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
   requestedBy   Employee      @relation("RequestedBy", fields: [requestedById], references: [id], onDelete: Cascade)
-  reviewedBy    Employee      @relation("ReviewedBy", fields: [reviewedById], references: [id], onDelete: Cascade)
+  reviewedBy    Employee?     @relation("ReviewedBy", fields: [reviewedById], references: [id], onDelete: Cascade)
 }
 
 model AttendanceReport {
@@ -258,6 +258,7 @@ enum Education {
 }
 
 enum ContractType {
+  FULL_TIME
   PART_TIME
   INTERNSHIP
   PROBATION
@@ -279,5 +280,4 @@ enum RequestStatus {
   PENDING
   APPROVED
   NOT_APPROVED
-  IN_REVIEW
 }

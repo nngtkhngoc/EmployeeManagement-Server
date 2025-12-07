@@ -13,6 +13,28 @@ class UpdateRequestService extends BaseService {
     return data;
   }
 
+  async create(data) {
+    return this.repository.create({
+      data,
+      include: {
+        requestedBy: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        },
+        reviewedBy: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        },
+      },
+    });
+  }
+
   toSearchFilter(filter) {
     if (!filter || typeof filter !== "object") return {};
     const { status, requestedById, reviewedById } = filter;
@@ -25,12 +47,76 @@ class UpdateRequestService extends BaseService {
   }
 
   async update(filter, data) {
-    return super.update(filter, this.removeUndefindedProps(data));
+    const cleanData = this.removeUndefindedProps(data);
+    return this.repository.update({
+      where: filter,
+      data: cleanData,
+      include: {
+        requestedBy: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        },
+        reviewedBy: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        },
+      },
+    });
   }
 
-  async read(filter, query) {
-    return super.read(this.toSearchFilter(filter), query);
+  async read(filter = {}, query = {}) {
+    const searchFilter = this.toSearchFilter(filter);
+    const queryOptions = {
+      ...searchFilter,
+      include: {
+        requestedBy: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        },
+        reviewedBy: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        },
+      },
+    };
+    return super.read(queryOptions, query);
   }
+
+  async readById(id, queryObj = {}) {
+    return this.repository.findUnique({
+      where: { id },
+      include: {
+        requestedBy: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        },
+        reviewedBy: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          },
+        },
+      },
+      ...queryObj,
+    });
+  }
+
 
   // Get requests by reviewer (for managers to see their assigned requests)
   async getRequestsByReviewer(reviewerId, query = {}) {
@@ -48,8 +134,15 @@ class UpdateRequestService extends BaseService {
   }
 
   // Get requests in review (for HR to track assigned requests)
+  // Note: Since IN_REVIEW is removed, this method returns requests that have reviewer assigned but still pending
   async getRequestsInReview(query = {}) {
-    return this.read({ status: "IN_REVIEW" }, query);
+    return this.repository.findMany({
+      where: {
+        status: "PENDING",
+        reviewedById: { not: null },
+      },
+      ...query,
+    });
   }
 }
 

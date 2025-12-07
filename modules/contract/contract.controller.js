@@ -13,7 +13,14 @@ const contractController = {
       }
     );
 
-    const contracts = await contractService.read(query);
+    // Build where clause from query params
+    const where = {};
+    if (query.status) where.status = query.status;
+    if (query.type) where.type = query.type;
+    if (query.employeeId) where.employeeId = query.employeeId;
+    if (query.signedById) where.signedById = query.signedById;
+
+    const contracts = await contractService.read({ where }, req.query);
     res.status(200).json(new SuccessResponseDto(contracts));
   },
   async getContractById(req, res) {
@@ -28,6 +35,12 @@ const contractController = {
       await contractValidation.createContractSchema.validateAsync(req.body, {
         abortEarly: false,
       });
+
+    // Nếu có file upload, lưu URL từ Cloudinary
+    if (req.file) {
+      contractData.attachment = req.file.path; // Cloudinary trả về path là URL
+    }
+
     const newContract = await contractService.create(contractData);
     res.status(201).json(new SuccessResponseDto(newContract));
   },
@@ -38,6 +51,20 @@ const contractController = {
       await contractValidation.updateContractSchema.validateAsync(req.body, {
         abortEarly: false,
       });
+
+    // Nếu có file upload mới, lưu URL từ Cloudinary
+    if (req.file) {
+      contractData.attachment = req.file.path; // Cloudinary trả về path là URL
+
+      // Nếu có file cũ, có thể xóa khỏi Cloudinary (optional)
+      // const oldContract = await contractService.readById(id);
+      // if (oldContract?.attachment) {
+      //   // Extract public_id từ URL và xóa
+      //   const publicId = extractPublicIdFromUrl(oldContract.attachment);
+      //   await cloudinary.uploader.destroy(publicId);
+      // }
+    }
+
     const updated = await contractService.update(id, contractData);
     res.status(200).json(new SuccessResponseDto(updated));
   },
@@ -87,6 +114,16 @@ const contractController = {
   async getContractStats(req, res) {
     const stats = await contractService.getStats();
     res.status(200).json(new SuccessResponseDto(stats));
+  },
+
+  async updateExpiredContracts(req, res) {
+    const result = await contractService.updateExpiredContracts();
+    res.status(200).json(
+      new SuccessResponseDto({
+        message: `Đã cập nhật ${result.updated} hợp đồng hết hạn`,
+        ...result,
+      })
+    );
   },
 };
 

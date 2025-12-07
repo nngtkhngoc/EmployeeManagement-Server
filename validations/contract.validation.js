@@ -1,6 +1,7 @@
 import Joi from "joi";
 
 export const ContractTypeEnum = [
+  "FULL_TIME",
   "PART_TIME",
   "INTERNSHIP",
   "PROBATION",
@@ -74,11 +75,26 @@ export const updateContractStatusSchema = Joi.object({
 });
 
 export const renewContractSchema = Joi.object({
-  startDate: Joi.date().required(),
-  endDate: Joi.date().required(),
-  signedDate: Joi.date().required(),
+  startDate: Joi.date().required().messages({
+    "any.required": "Ngày bắt đầu là bắt buộc",
+    "date.base": "Ngày bắt đầu không hợp lệ",
+  }),
+  endDate: Joi.date().required().messages({
+    "any.required": "Ngày kết thúc là bắt buộc",
+    "date.base": "Ngày kết thúc không hợp lệ",
+  }),
+  signedDate: Joi.date().required().messages({
+    "any.required": "Ngày ký là bắt buộc",
+    "date.base": "Ngày ký không hợp lệ",
+  }),
+  dailySalary: Joi.number().positive().required().messages({
+    "any.required": "Lương ngày là bắt buộc",
+    "number.positive": "Lương ngày phải là số dương",
+  }),
+  allowance: Joi.number().min(0).default(0).messages({
+    "number.min": "Phụ cấp không được âm",
+  }),
   note: Joi.string().allow("").optional(),
-  attachment: Joi.string().optional(),
 });
 
 export const contractQuerySchema = Joi.object({
