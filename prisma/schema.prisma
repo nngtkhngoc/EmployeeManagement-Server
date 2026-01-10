@@ -70,7 +70,6 @@ model Employee {
   workHistory                                WorkHistory[]
   managedProjects                            Project[]                 @relation("ProjectManager")
   projectMemberships                         ProjectMember[]
-  notifications                              Notification[]
   notificationsCreated                       Notification[]            @relation("NotificationCreator")
   notificationRecipients                     NotificationRecipient[]   @relation("NotificationRecipients")
 }
