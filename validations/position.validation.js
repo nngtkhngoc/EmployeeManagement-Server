@@ -17,6 +17,10 @@ const positionValidation = {
           "string.pattern.base":
             "Tên vị trí chỉ được chứa chữ cái, khoảng trắng và dấu &",
         }),
+
+      status: Joi.string().valid("ACTIVE", "INACTIVE").optional().messages({
+        "any.only": "Trạng thái vị trí phải là ACTIVE hoặc INACTIVE",
+      }),
     });
   },
 
@@ -35,6 +39,10 @@ const positionValidation = {
           "string.pattern.base":
             "Tên vị trí chỉ được chứa chữ cái, khoảng trắng và dấu &",
         }),
+
+      status: Joi.string().valid("ACTIVE", "INACTIVE").optional().messages({
+        "any.only": "Trạng thái vị trí phải là ACTIVE hoặc INACTIVE",
+      }),
     });
   },
 };

@@ -23,9 +23,10 @@ model Department {
 }
 
 model Position {
-  id          Int           @id @default(autoincrement())
-  name        String        @unique @db.VarChar(100)
-  createdAt   DateTime      @default(now()) @map("created_at")
+  id          Int            @id @default(autoincrement())
+  name        String         @unique @db.VarChar(100)
+  status      PositionStatus @default(ACTIVE) @map("status")
+  createdAt   DateTime       @default(now()) @map("created_at")
   employees   Employee[]
   workHistory WorkHistory[]
 }
@@ -371,6 +372,12 @@ enum DepartmentStatus {
   ACTIVE
   INACTIVE
 }
+
+enum PositionStatus {
+  ACTIVE
+  INACTIVE
+}
+
 enum EpicStatus {
   TODO
   IN_PROGRESS
