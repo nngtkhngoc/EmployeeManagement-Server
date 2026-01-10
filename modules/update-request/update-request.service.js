@@ -37,12 +37,68 @@ class UpdateRequestService extends BaseService {
 
   toSearchFilter(filter) {
     if (!filter || typeof filter !== "object") return {};
-    const { status, requestedById, reviewedById } = filter;
+    const {
+      status,
+      requestedById,
+      reviewedById,
+      content,
+      created_date_from,
+      created_date_to,
+      updated_date_from,
+      updated_date_to,
+    } = filter;
 
     const where = {};
+
     if (status !== undefined) where.status = status;
     if (requestedById !== undefined) where.requestedById = requestedById;
     if (reviewedById !== undefined) where.reviewedById = reviewedById;
+
+    // Search by content
+    if (content !== undefined && content !== null && content !== "") {
+      where.content = {
+        contains: content,
+        mode: "insensitive",
+      };
+    }
+
+    // Date range filters
+    if (created_date_from || created_date_to) {
+      where.created_at = {};
+      if (created_date_from) {
+        const dateFrom = new Date(created_date_from);
+        if (!isNaN(dateFrom.getTime())) {
+          where.created_at.gte = dateFrom;
+        }
+      }
+      if (created_date_to) {
+        const dateTo = new Date(created_date_to);
+        if (!isNaN(dateTo.getTime())) {
+          // Set to end of day
+          dateTo.setHours(23, 59, 59, 999);
+          where.created_at.lte = dateTo;
+        }
+      }
+    }
+
+    if (updated_date_from || updated_date_to) {
+      where.updated_at = {};
+      if (updated_date_from) {
+        const dateFrom = new Date(updated_date_from);
+        if (!isNaN(dateFrom.getTime())) {
+          where.updated_at.gte = dateFrom;
+        }
+      }
+      if (updated_date_to) {
+        const dateTo = new Date(updated_date_to);
+        if (!isNaN(dateTo.getTime())) {
+          // Set to end of day
+          dateTo.setHours(23, 59, 59, 999);
+          where.updated_at.lte = dateTo;
+        }
+      }
+    }
+
     return { where };
   }
 

@@ -64,9 +64,40 @@ const updateRequestValidation = {
         }),
       requestedById: Joi.number().integer().optional().messages({
         "number.base": "ID người yêu cầu phải là số",
+        "number.integer": "ID người yêu cầu phải là số nguyên",
       }),
       reviewedById: Joi.number().integer().optional().messages({
         "number.base": "ID người review phải là số",
+        "number.integer": "ID người review phải là số nguyên",
+      }),
+      content: Joi.string().optional().messages({
+        "string.empty": "Nội dung tìm kiếm không được để trống",
+      }),
+      page: Joi.number().integer().min(1).optional().messages({
+        "number.base": "Trang phải là số",
+        "number.integer": "Trang phải là số nguyên",
+        "number.min": "Trang phải lớn hơn 0",
+      }),
+      limit: Joi.number().integer().min(1).max(1000).optional().messages({
+        "number.base": "Số lượng bản ghi phải là số",
+        "number.integer": "Số lượng bản ghi phải là số nguyên",
+        "number.min": "Số lượng bản ghi phải lớn hơn 0",
+        "number.max": "Số lượng bản ghi không được vượt quá 1000",
+      }),
+      sort: Joi.string().optional().messages({
+        "string.empty": "Sắp xếp không được để trống",
+      }),
+      created_date_from: Joi.date().optional().messages({
+        "date.base": "Ngày tạo từ không hợp lệ",
+      }),
+      created_date_to: Joi.date().optional().messages({
+        "date.base": "Ngày tạo đến không hợp lệ",
+      }),
+      updated_date_from: Joi.date().optional().messages({
+        "date.base": "Ngày cập nhật từ không hợp lệ",
+      }),
+      updated_date_to: Joi.date().optional().messages({
+        "date.base": "Ngày cập nhật đến không hợp lệ",
       }),
     });
   },
