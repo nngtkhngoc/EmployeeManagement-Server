@@ -175,6 +175,36 @@ class ProjectService extends BaseService {
     });
   }
 
+  async addMultipleEmployeesToProject(projectId, employeeData) {
+    return prisma.$transaction(async tx => {
+      const project = await tx.project.findUnique({ where: { id: projectId } });
+      if (!project) throw new Error("Project not found");
+
+      await this.addMultipleEmployees(tx, projectId, employeeData);
+
+      // Fetch and return the updated project with all members
+      return tx.project.findUnique({
+        where: { id: projectId },
+        include: {
+          members: {
+            select: {
+              id: true,
+              role: true,
+              joinedAt: true,
+              employee: {
+                select: {
+                  id: true,
+                  fullName: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    });
+  }
+
   async addMultipleEmployees(tx, projectId, employeeData) {
     const employeeIds = employeeData.map(e =>
       typeof e === "object" ? e.employeeId : e
