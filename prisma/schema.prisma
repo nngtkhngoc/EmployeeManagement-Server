@@ -268,6 +268,7 @@ model Project {
   managerId   Int?           @map("manager_id")
   manager     Employee?      @relation("ProjectManager", fields: [managerId], references: [id], onDelete: SetNull)
   members     ProjectMember[]
+  epics       Epic[]
 }
 
 model ProjectMember {
@@ -280,6 +281,22 @@ model ProjectMember {
   employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, employeeId])
+}
+
+model Epic {
+  id          Int           @id @default(autoincrement())
+  name        String        @db.VarChar(255)
+  description String?       @db.Text
+  status      EpicStatus    @default(TODO)
+  priority    EpicPriority  @default(MEDIUM)
+  startDate   DateTime?     @map("start_date")
+  endDate     DateTime?     @map("end_date")
+  projectId   Int           @map("project_id")
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+  project     Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
 }
 
 enum WorkStatus {
