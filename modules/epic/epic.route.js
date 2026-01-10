@@ -16,14 +16,9 @@ router
     .put(epicController.updateEpic)
     .delete(epicController.deleteEpic);
 
-// Executor routes
+// Set executors (replace all)
 router
     .route("/epics/:epicId/executors")
-    .get(epicController.getExecutors)
-    .post(epicController.addExecutor);
-
-router
-    .route("/epics/:epicId/executors/:employeeId")
-    .delete(epicController.removeExecutor);
+    .put(epicController.setExecutors);
 
 export default router;
