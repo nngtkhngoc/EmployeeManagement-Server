@@ -25,5 +25,6 @@ jobs:
 
       - name: Prisma DB Push
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> $GITHUB_ENV
         run: npx prisma db push
+
