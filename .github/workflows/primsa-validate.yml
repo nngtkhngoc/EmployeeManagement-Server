@@ -17,4 +17,7 @@ jobs:
 
       - run: npm ci
 
-      - run: npx prisma validate
+      - name: Prisma Validate
+        env:
+          DATABASE_URL: postgresql://user:password@localhost:5432/db
+        run: npx prisma validate
