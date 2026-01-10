@@ -68,6 +68,47 @@ model Employee {
   updateRequestsMade                         UpdateRequest[]           @relation("RequestedBy")
   updateRequestsReviewed                     UpdateRequest[]           @relation("ReviewedBy")
   workHistory                                WorkHistory[]
+  managedProjects                            Project[]                 @relation("ProjectManager")
+  projectMemberships                         ProjectMember[]
+  notifications                              Notification[]
+  id                                         Int                       @id @default(autoincrement())
+  employeeCode                               String?                   @unique @map("employee_code") @db.VarChar(5)
+  fullName                                   String                    @map("full_name")
+  avatar                                     String?
+  workStatus                                 WorkStatus                @default(WORKING_ONSITE) @map("work_status")
+  gender                                     Gender
+  birthday                                   DateTime
+  citizenId                                  String                    @map("citizen_id")
+  phone                                      String
+  email                                      String
+  ethnicity                                  String
+  religion                                   String
+  education                                  Education
+  major                                      String
+  siNo                                       String                    @map("si_no")
+  hiNo                                       String                    @map("hi_no")
+  createdAt                                  DateTime                  @default(now()) @map("created_at")
+  password                                   String
+  isActive                                   Boolean                   @default(true)
+  departmentId                               Int?                      @map("department_id")
+  positionId                                 Int?                      @map("position_id")
+  role                                       String                    @default("Employee")
+  attendanceDetails                          AttendanceReportDetail[]
+  contractsSigned                            Contract[]                @relation("EmployeeContract")
+  contractsAsSigner                          Contract[]                @relation("SignedByManager")
+  managedDepartment                          Department?               @relation("DepartmentManager")
+  department                                 Department?               @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  position                                   Position?                 @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  leaveApplications                          LeaveApplication[]
+  OverTime_OverTime_approved_by_idToEmployee OverTime[]                @relation("OverTime_approved_by_idToEmployee")
+  OverTime_OverTime_employee_idToEmployee    OverTime[]                @relation("OverTime_employee_idToEmployee")
+  payrollDetails                             PayrollReportDetail[]
+  performanceDetails                         PerformanceReportDetail[] @relation("PerformanceOfEmployee")
+  supervisedReports                          PerformanceReportDetail[] @relation("PerformanceSupervisor")
+  TimeKeepingReportDetail                    TimeKeepingReportDetail[]
+  updateRequestsMade                         UpdateRequest[]           @relation("RequestedBy")
+  updateRequestsReviewed                     UpdateRequest[]           @relation("ReviewedBy")
+  workHistory                                WorkHistory[]
 }
 
 model Contract {
@@ -112,8 +153,8 @@ model LeaveType {
 
 model LeaveApplication {
   id          Int           @id @default(autoincrement())
-  startDate   DateTime      @map("start_date")
-  endDate     DateTime      @map("end_date")
+  startDate   DateTime      @map("start_date") @db.Date
+  endDate     DateTime      @map("end_date") @db.Date
   reason      String
   status      RequestStatus @default(PENDING)
   createdAt   DateTime      @default(now()) @map("created_at")
@@ -129,9 +170,16 @@ model UpdateRequest {
   status        RequestStatus @default(PENDING)
   requestedById Int           @map("requested_by_id")
   reviewedById  Int?          @map("reviewed_by_id")
+  content       String
+  created_at    DateTime      @default(now())
+  updated_at    DateTime
+  newValue      String?       @map("new_value")
+  oldValue      String?       @map("old_value")
+  reviewedById  Int?          @map("reviewed_by_id")
   createdAt     DateTime      @default(now()) @map("created_at")
   updatedAt     DateTime      @updatedAt @map("updated_at")
   requestedBy   Employee      @relation("RequestedBy", fields: [requestedById], references: [id], onDelete: Cascade)
+  reviewedBy    Employee?     @relation("ReviewedBy", fields: [reviewedById], references: [id], onDelete: Cascade)
   reviewedBy    Employee?      @relation("ReviewedBy", fields: [reviewedById], references: [id], onDelete: Cascade)
 }
 
@@ -224,6 +272,73 @@ model OverTime {
   employee_id                                Int
   hour                                       Int
   status                                     String
+  overTimeDate                               DateTime @db.Date
+  approved_by_id                             Int
+  created_at                                 DateTime
+  Employee_OverTime_approved_by_idToEmployee Employee @relation("OverTime_approved_by_idToEmployee", fields: [approved_by_id], references: [id], onDelete: Cascade)
+  Employee_OverTime_employee_idToEmployee    Employee @relation("OverTime_employee_idToEmployee", fields: [employee_id], references: [id], onDelete: Cascade)
+}
+
+model TimeKeepingReport {
+  id                      Int                       @id @default(autoincrement())
+  month                   Int
+  year                    Int
+  created_at              DateTime                  @default(now())
+  TimeKeepingReportDetail TimeKeepingReportDetail[]
+}
+
+model TimeKeepingReportDetail {
+  id                Int               @id @default(autoincrement())
+  employee_id       Int
+  timeIn            DateTime
+  timeOut           DateTime
+  report_id         Int
+  Employee          Employee          @relation(fields: [employee_id], references: [id], onDelete: Cascade)
+  TimeKeepingReport TimeKeepingReport @relation(fields: [report_id], references: [id], onDelete: Cascade)
+}
+
+model Project {
+  id          Int            @id @default(autoincrement())
+  name        String         @db.VarChar(255)
+  description String?
+  startDate   DateTime       @map("start_date")
+  endDate     DateTime?      @map("end_date")
+  status      ProjectStatus  @default(PLANNING)
+  budget      Decimal?
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+  managerId   Int?           @map("manager_id")
+  manager     Employee?      @relation("ProjectManager", fields: [managerId], references: [id], onDelete: SetNull)
+  members     ProjectMember[]
+}
+
+model ProjectMember {
+  id         Int      @id @default(autoincrement())
+  projectId  Int      @map("project_id")
+  employeeId Int      @map("employee_id")
+  role       String?  @db.VarChar(100)
+  joinedAt   DateTime @default(now()) @map("joined_at")
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, employeeId])
+}
+
+model Notification {
+  id         Int              @id @default(autoincrement())
+  type       NotificationType
+  title      String           @db.VarChar(255)
+  content    String
+  isRead     Boolean          @default(false) @map("is_read")
+  createdAt  DateTime         @default(now()) @map("created_at")
+  employeeId Int              @map("employee_id")
+  relatedId  Int?             @map("related_id")
+  employee   Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+model OverTime {
+  id                                         Int      @id @default(autoincrement())
+  employee_id                                Int
+  hour                                       Int
+  status                                     String
   overTimeDate                               DateTime
   approved_by_id                             Int
   created_at                                 DateTime
@@ -291,6 +406,7 @@ enum ContractType {
   FREELANCE
   OUTSOURCE
   FULL_TIME
+  FULL_TIME
 }
 
 enum ContractStatus {
@@ -305,5 +421,25 @@ enum ContractStatus {
 enum RequestStatus {
   APPROVED
   NOT_APPROVED
+  PENDING
+}
+
+enum ProjectStatus {
+  PLANNING
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationType {
+  LEAVE_REQUEST
+  UPDATE_REQUEST
+  PROJECT_ASSIGNED
+  PROJECT_UPDATED
+  CONTRACT_SIGNED
+  PERFORMANCE_REVIEW
+  OVERTIME_APPROVED
+  GENERAL
   PENDING
 }
