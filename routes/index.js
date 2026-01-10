@@ -31,7 +31,7 @@ export const routes = app => {
   app.use("/api/attendance-report-details", attendanceReportDetailRouter);
   app.use("/api/work-history", workHistoryRouter);
   app.use("/api/department", departmentRouter);
-  app.use("/api/postion", positionRouter);
+  app.use("/api/position", positionRouter);
   app.use("/api/performance", performanceRouter);
   app.use("/api/performance-criteria", performanceCriteriaRoute);
   app.use("/api/performance-detail", performanceDetailRoute);

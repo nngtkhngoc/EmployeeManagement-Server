@@ -9,14 +9,15 @@ datasource db {
 }
 
 model Department {
-  id             Int           @id @default(autoincrement())
-  departmentCode String        @map("department_code") @db.VarChar(4)
-  name           String        @db.VarChar(100)
-  foundedAt      DateTime      @map("founded_at")
+  id             Int               @id @default(autoincrement())
+  departmentCode String            @map("department_code") @db.VarChar(4)
+  name           String            @db.VarChar(100)
+  foundedAt      DateTime          @map("founded_at")
   description    String?
-  createdAt      DateTime      @default(now()) @map("created_at")
-  managerId      Int?          @unique @map("manager_id")
-  manager        Employee?     @relation("DepartmentManager", fields: [managerId], references: [id])
+  status         DepartmentStatus  @default(ACTIVE) @map("status")
+  createdAt      DateTime          @default(now()) @map("created_at")
+  managerId      Int?              @unique @map("manager_id")
+  manager        Employee?         @relation("DepartmentManager", fields: [managerId], references: [id])
   employees      Employee[]
   WorkHistory    WorkHistory[]
 }
@@ -366,6 +367,10 @@ enum ProjectStatus {
   CANCELLED
 }
 
+enum DepartmentStatus {
+  ACTIVE
+  INACTIVE
+}
 enum EpicStatus {
   TODO
   IN_PROGRESS
