@@ -11,6 +11,10 @@ const employeeController = {
         departmentId,
         positionId,
         isActive,
+        created_date_from,
+        created_date_to,
+        updated_date_from,
+        updated_date_to,
         page: tmpPage,
         limit: tmpLimit,
         ...personalInfor
@@ -59,6 +63,33 @@ const employeeController = {
           in: positionIdArray,
         };
       }
+
+      // Filter by created date range
+      if (created_date_from || created_date_to) {
+        filter.createdAt = {};
+        if (created_date_from) {
+          filter.createdAt.gte = new Date(parseInt(created_date_from) * 1000);
+        }
+        if (created_date_to) {
+          filter.createdAt.lte = new Date(parseInt(created_date_to) * 1000);
+        }
+      }
+
+      // Note: Employee schema doesn't have updatedAt field
+      // If you need updated date filtering, add updatedAt field to the Prisma schema:
+      // updatedAt DateTime @updatedAt @map("updated_at")
+      // Then uncomment below:
+      /*
+      if (updated_date_from || updated_date_to) {
+        filter.updatedAt = {};
+        if (updated_date_from) {
+          filter.updatedAt.gte = new Date(parseInt(updated_date_from) * 1000);
+        }
+        if (updated_date_to) {
+          filter.updatedAt.lte = new Date(parseInt(updated_date_to) * 1000);
+        }
+      }
+      */
 
       const options = { page, limit };
       const where = filter;
