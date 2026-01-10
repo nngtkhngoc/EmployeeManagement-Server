@@ -90,6 +90,106 @@ class EpicService extends BaseService {
             where: { id: parseInt(id) },
         });
     }
+
+    // Executor management methods
+    async addExecutor(epicId, employeeId) {
+        return prisma.$transaction(async tx => {
+            // Verify epic exists
+            const epic = await tx.epic.findUnique({
+                where: { id: parseInt(epicId) },
+            });
+            if (!epic) throw new Error("Epic not found");
+
+            // Verify employee exists
+            const employee = await tx.employee.findFirst({
+                where: { id: parseInt(employeeId), isActive: true },
+            });
+            if (!employee) throw new Error("Employee not found or inactive");
+
+            // Check if already assigned
+            const existing = await tx.epicExecutor.findUnique({
+                where: {
+                    epicId_employeeId: {
+                        epicId: parseInt(epicId),
+                        employeeId: parseInt(employeeId),
+                    },
+                },
+            });
+            if (existing) throw new Error("Employee already assigned as executor");
+
+            return tx.epicExecutor.create({
+                data: {
+                    epicId: parseInt(epicId),
+                    employeeId: parseInt(employeeId),
+                },
+                include: {
+                    employee: {
+                        select: {
+                            id: true,
+                            fullName: true,
+                            email: true,
+                            avatar: true,
+                        },
+                    },
+                },
+            });
+        });
+    }
+
+    async removeExecutor(epicId, employeeId) {
+        const existing = await prisma.epicExecutor.findUnique({
+            where: {
+                epicId_employeeId: {
+                    epicId: parseInt(epicId),
+                    employeeId: parseInt(employeeId),
+                },
+            },
+        });
+        if (!existing) throw new Error("Executor assignment not found");
+
+        return prisma.epicExecutor.delete({
+            where: {
+                epicId_employeeId: {
+                    epicId: parseInt(epicId),
+                    employeeId: parseInt(employeeId),
+                },
+            },
+        });
+    }
+
+    async getExecutors(epicId) {
+        const epic = await prisma.epic.findUnique({
+            where: { id: parseInt(epicId) },
+        });
+        if (!epic) throw new Error("Epic not found");
+
+        return prisma.epicExecutor.findMany({
+            where: { epicId: parseInt(epicId) },
+            include: {
+                employee: {
+                    select: {
+                        id: true,
+                        fullName: true,
+                        email: true,
+                        avatar: true,
+                        position: {
+                            select: {
+                                id: true,
+                                name: true,
+                            },
+                        },
+                        department: {
+                            select: {
+                                id: true,
+                                name: true,
+                            },
+                        },
+                    },
+                },
+            },
+            orderBy: { assignedAt: "desc" },
+        });
+    }
 }
 
 export default new EpicService();

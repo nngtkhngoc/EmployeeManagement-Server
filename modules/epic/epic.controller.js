@@ -33,6 +33,26 @@ const epicController = {
         await epicService.delete(id);
         res.status(200).json(new SuccessResponseDto(null, "Epic deleted successfully"));
     }),
+
+    // Executor management
+    getExecutors: catchAsync(async (req, res) => {
+        const { epicId } = req.params;
+        const executors = await epicService.getExecutors(epicId);
+        res.status(200).json(new SuccessResponseDto(executors));
+    }),
+
+    addExecutor: catchAsync(async (req, res) => {
+        const { epicId } = req.params;
+        const { employeeId } = req.body;
+        const executor = await epicService.addExecutor(epicId, employeeId);
+        res.status(201).json(new SuccessResponseDto(executor));
+    }),
+
+    removeExecutor: catchAsync(async (req, res) => {
+        const { epicId, employeeId } = req.params;
+        await epicService.removeExecutor(epicId, employeeId);
+        res.status(200).json(new SuccessResponseDto(null, "Executor removed successfully"));
+    }),
 };
 
 export default epicController;
