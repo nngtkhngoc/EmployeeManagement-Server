@@ -12,6 +12,7 @@ const departmentController = {
         page: tmpPage,
         limit: tmpLimit,
         managerId,
+        status, // Filter by status (ACTIVE or INACTIVE)
         created_at_from,
         created_at_to,
         created_date_from, // Legacy support
@@ -49,6 +50,25 @@ const departmentController = {
               },
             ],
           });
+        }
+      }
+
+      // Filter by status
+      if (status) {
+        const statusArray = Array.isArray(status)
+          ? status
+          : typeof status === "string"
+          ? status.split(",").map(s => s.trim().toUpperCase())
+          : [];
+
+        const validStatuses = statusArray.filter(
+          s => s === "ACTIVE" || s === "INACTIVE"
+        );
+
+        if (validStatuses.length === 1) {
+          where.status = validStatuses[0];
+        } else if (validStatuses.length > 1) {
+          where.status = { in: validStatuses };
         }
       }
 
@@ -155,7 +175,16 @@ const departmentController = {
 
       const options = { page, limit };
       const include = {
-        manager: true,
+        manager: {
+          select: {
+            id: true,
+            employeeCode: true,
+            fullName: true,
+            avatar: true,
+            email: true,
+            phone: true,
+          },
+        },
         employees: true,
       };
 
@@ -175,7 +204,16 @@ const departmentController = {
     const { id } = req.params;
     const department = await departmentService.readById(parseInt(id), {
       include: {
-        manager: true,
+        manager: {
+          select: {
+            id: true,
+            employeeCode: true,
+            fullName: true,
+            avatar: true,
+            email: true,
+            phone: true,
+          },
+        },
         employees: true,
       },
     });
@@ -197,6 +235,7 @@ const departmentController = {
       foundedAt: value.foundedAt,
       description: value.description,
       managerId: value.managerId,
+      status: value.status || "ACTIVE", // Default to ACTIVE if not provided
     };
 
     const newDepartment = await departmentService.create(departmentData);
@@ -228,6 +267,7 @@ const departmentController = {
       foundedAt: value.foundedAt,
       description: value.description,
       managerId: value.managerId,
+      status: value.status, // Allow updating status
     };
 
     const updatedDepartment = await departmentService.update(
