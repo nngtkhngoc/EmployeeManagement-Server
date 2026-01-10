@@ -1,0 +1,105 @@
+import Joi from "joi";
+
+const PROJECT_STATUS = [
+  "PLANNING",
+  "IN_PROGRESS",
+  "COMPLETED",
+  "ON_HOLD",
+  "CANCELLED",
+];
+
+const PROJECT_ROLE = ["MANAGER", "LEAD", "MEMBER", "OBSERVER"];
+
+const employeeItem = Joi.alternatives().try(
+  Joi.number().integer(),
+  Joi.object({
+    employeeId: Joi.number().integer().required(),
+    role: Joi.string()
+      .valid(...PROJECT_ROLE)
+      .default("MEMBER"),
+  })
+);
+
+const projectValidation = {
+  createProject: {
+    body: Joi.object({
+      name: Joi.string().min(1).max(255).required(),
+      description: Joi.string().max(1000).optional(),
+      status: Joi.string()
+        .valid(...PROJECT_STATUS)
+        .default("PLANNING"),
+      startDate: Joi.date().optional(),
+      endDate: Joi.date().optional().greater(Joi.ref("startDate")),
+      budget: Joi.number().min(0).optional(),
+      managerId: Joi.number().integer().optional(),
+      employeeIds: Joi.array().items(employeeItem).min(1).optional(),
+    }).unknown(false),
+  },
+
+  updateProject: {
+    params: Joi.object({
+      id: Joi.number().integer().required(),
+    }).unknown(false),
+
+    body: Joi.object({
+      name: Joi.string().min(1).max(255).optional(),
+      description: Joi.string().max(1000).optional(),
+      status: Joi.string()
+        .valid(...PROJECT_STATUS)
+        .optional(),
+      startDate: Joi.date().optional(),
+      endDate: Joi.date().optional().greater(Joi.ref("startDate")),
+      budget: Joi.number().min(0).optional(),
+      managerId: Joi.number().integer().allow(null).optional(),
+      employeeIds: Joi.array().items(employeeItem).optional(),
+    })
+      .min(1) // ❗ must update at least one field
+      .unknown(false),
+  },
+
+  getProject: {
+    params: Joi.object({
+      id: Joi.number().integer().required(),
+    }).unknown(false),
+  },
+
+  deleteProject: {
+    params: Joi.object({
+      id: Joi.number().integer().required(),
+    }).unknown(false),
+  },
+
+  addEmployee: {
+    params: Joi.object({
+      projectId: Joi.number().integer().required(),
+    }).unknown(false),
+
+    body: Joi.object({
+      employeeId: Joi.number().integer().required(),
+      role: Joi.string()
+        .valid(...PROJECT_ROLE)
+        .default("MEMBER"),
+    }).unknown(false),
+  },
+
+  removeEmployee: {
+    params: Joi.object({
+      projectId: Joi.number().integer().required(),
+      employeeId: Joi.number().integer().required(),
+    }).unknown(false),
+  },
+
+  getProjects: {
+    query: Joi.object({
+      name: Joi.string().optional(),
+      status: Joi.string()
+        .valid(...PROJECT_STATUS)
+        .optional(),
+      managerId: Joi.number().integer().optional(),
+      page: Joi.number().integer().min(1).optional(),
+      limit: Joi.number().integer().min(1).max(100).optional(),
+    }).unknown(false),
+  },
+};
+
+export default projectValidation;
