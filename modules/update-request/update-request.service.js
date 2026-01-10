@@ -72,8 +72,11 @@ class UpdateRequestService extends BaseService {
 
   async read(filter = {}, query = {}) {
     const searchFilter = this.toSearchFilter(filter);
+    // Extract where clause to ensure it's clean for count()
+    const where = searchFilter.where || {};
+
     const queryOptions = {
-      ...searchFilter,
+      where,
       include: {
         requestedBy: {
           select: {
@@ -116,7 +119,6 @@ class UpdateRequestService extends BaseService {
       ...queryObj,
     });
   }
-
 
   // Get requests by reviewer (for managers to see their assigned requests)
   async getRequestsByReviewer(reviewerId, query = {}) {

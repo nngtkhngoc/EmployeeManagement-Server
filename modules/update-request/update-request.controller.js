@@ -2,7 +2,7 @@ import catchAsync from "../../common/catchAsync.js";
 import { SuccessResponseDto } from "../../common/dtos/successResponseDto.js";
 import { BadRequestException } from "../../common/exceptions/exception.js";
 import updateRequestService from "./update-request.service.js";
-import * as updateRequestValidation from "../../validations/update-request.validation.js";
+import updateRequestValidation from "../../validations/update-request.validation.js";
 
 const updateRequestController = {
   async getAll(req, res) {

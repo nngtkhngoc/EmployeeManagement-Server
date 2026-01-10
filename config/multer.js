@@ -5,21 +5,11 @@ import cloudinary from "./cloudinary.js";
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "employee-management/contracts",
-    resource_type: "auto",
-    allowed_formats: ["jpg", "jpeg", "png", "gif", "webp", "pdf"],
+    folder: "my_uploads", // thư mục trong Cloudinary
+    allowed_formats: ["jpg", "png", "jpeg", "webp"],
   },
 });
 
-const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB
-  },
-  fileFilter: (req, file, cb) => {
-    // Cho phép tất cả file types (ảnh và PDF)
-    cb(null, true);
-  },
-});
+const upload = multer({ storage });
 
 export default upload;

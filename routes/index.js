@@ -15,6 +15,8 @@ import performanceCriteriaRoute from "../modules/performance/performanceCriteria
 import performanceDetailRoute from "../modules/performance/performanceDetail.route.js";
 import performanceDetailScoreRoute from "../modules/performance/performanceDetailScore.route.js";
 
+import streamRouter from "../modules/stream/stream.route.js";
+
 export const routes = app => {
   app.use("/healthcheck", (req, res) => res.status(200).send("OK"));
 
@@ -34,4 +36,5 @@ export const routes = app => {
   app.use("/api/performance-criteria", performanceCriteriaRoute);
   app.use("/api/performance-detail", performanceDetailRoute);
   app.use("/api/performance-detail-score", performanceDetailScoreRoute);
+  app.use("/api/stream", streamRouter);
 };

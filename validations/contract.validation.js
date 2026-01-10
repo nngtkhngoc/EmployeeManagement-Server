@@ -20,7 +20,7 @@ export const ContractStatusEnum = [
 ];
 
 export const createContractSchema = Joi.object({
-  contractCode: Joi.string().trim().max(10).required().messages({
+  contractCode: Joi.string().trim().max(10).optional().messages({
     "string.empty": "Mã hợp đồng không được để trống",
     "string.max": "Mã hợp đồng tối đa 10 ký tự",
   }),
@@ -58,7 +58,7 @@ export const createContractSchema = Joi.object({
   signedById: Joi.number()
     .integer()
     .positive()
-    .required()
+    .optional()
     .messages({ "number.base": "signedById phải là số" }),
 });
 

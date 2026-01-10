@@ -4,7 +4,9 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node --watch server.js"
+    "test:api": "node tests/api-test.js",
+    "dev": "node --watch server.js",
+    "seed": "node prisma/seed.js"
   },
   "type": "module",
   "author": "",
@@ -12,6 +14,8 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "^6.17.1",
+    "@stream-io/video-react-sdk": "^1.31.0",
+    "axios": "^1.6.0",
     "bcrypt": "^6.0.0",
     "body-parser": "^2.2.0",
     "cloudinary": "^1.41.3",
@@ -23,10 +27,11 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "express-rate-limit": "^8.1.0",
+    "getstream": "^8.8.0",
     "http": "^0.0.1-security",
     "ioredis": "^5.8.1",
     "joi": "^18.0.1",
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.3",
     "lodash": "^4.17.21",
     "morgan": "^1.10.1",
     "multer": "^2.0.2",
@@ -34,7 +39,8 @@
     "nodemailer": "^7.0.10",
     "nodemon": "^3.1.10",
     "redis": "^5.8.3",
-    "socket.io": "^4.8.1"
+    "socket.io": "^4.8.1",
+    "stream-chat": "^9.28.0"
   },
   "devDependencies": {
     "prisma": "^6.17.1"
