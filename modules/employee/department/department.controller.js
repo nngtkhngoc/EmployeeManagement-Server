@@ -7,35 +7,161 @@ import departmentService from "./department.service.js";
 const departmentController = {
   getAllDepartments: async (req, res) => {
     try {
-      const { page: tmpPage, limit: tmpLimit, ...departmentInfor } = req.query;
+      const {
+        q, // Query search for departmentCode and name
+        page: tmpPage,
+        limit: tmpLimit,
+        managerId,
+        created_at_from,
+        created_at_to,
+        created_date_from, // Legacy support
+        created_date_to, // Legacy support
+        updated_at_from,
+        updated_at_to,
+        updated_by_from, // Note: Department doesn't have updatedBy field, treating as updated_at
+        updated_by_to, // Note: Department doesn't have updatedBy field, treating as updated_at
+        ...departmentInfor
+      } = req.query;
+
       const page = parseInt(tmpPage) || 1;
       const limit = parseInt(tmpLimit) || 100;
 
-      const filter = {};
+      const where = {};
+      const andConditions = [];
 
+      // Filter by query (q) - search in departmentCode and name
+      if (q) {
+        const queryString = typeof q === "string" ? q.trim() : String(q).trim();
+        if (queryString.length > 0) {
+          andConditions.push({
+            OR: [
+              {
+                departmentCode: {
+                  contains: queryString,
+                  mode: "insensitive",
+                },
+              },
+              {
+                name: {
+                  contains: queryString,
+                  mode: "insensitive",
+                },
+              },
+            ],
+          });
+        }
+      }
+
+      // Filter by managerId (exact match or comma-separated list or array)
+      if (managerId) {
+        const managerIds = Array.isArray(managerId)
+          ? managerId.map(id => parseInt(id)).filter(id => !isNaN(id))
+          : typeof managerId === "string"
+          ? managerId
+              .split(",")
+              .map(id => parseInt(id.trim()))
+              .filter(id => !isNaN(id))
+          : [];
+
+        if (managerIds.length === 1) {
+          where.managerId = managerIds[0];
+        } else if (managerIds.length > 1) {
+          where.managerId = { in: managerIds };
+        }
+      }
+
+      // Filter by created date range (support both naming conventions)
+      const createdFrom = created_at_from || created_date_from || undefined;
+      const createdTo = created_at_to || created_date_to || undefined;
+
+      if (createdFrom || createdTo) {
+        const createdAtFilter = {};
+        if (createdFrom) {
+          const timestamp = parseInt(createdFrom);
+          if (!isNaN(timestamp)) {
+            createdAtFilter.gte = new Date(timestamp * 1000);
+          }
+        }
+        if (createdTo) {
+          const timestamp = parseInt(createdTo);
+          if (!isNaN(timestamp)) {
+            createdAtFilter.lte = new Date(timestamp * 1000);
+          }
+        }
+        if (Object.keys(createdAtFilter).length > 0) {
+          where.createdAt = createdAtFilter;
+        }
+      }
+
+      // Filter by updated date range
+      // Note: Department model doesn't have updatedAt field in Prisma schema
+      // To enable this filter, add: updatedAt DateTime @updatedAt @map("updated_at") to Department model
+      // For now, we'll prepare the filter structure but it won't work until schema is updated
+      const updatedFrom = updated_at_from || updated_by_from || undefined;
+      const updatedTo = updated_at_to || updated_by_to || undefined;
+
+      if (updatedFrom || updatedTo) {
+        // Uncomment this block after adding updatedAt to Department schema
+        // const updatedAtFilter = {};
+        // if (updatedFrom) {
+        //   const timestamp = parseInt(updatedFrom);
+        //   if (!isNaN(timestamp)) {
+        //     updatedAtFilter.gte = new Date(timestamp * 1000);
+        //   }
+        // }
+        // if (updatedTo) {
+        //   const timestamp = parseInt(updatedTo);
+        //   if (!isNaN(timestamp)) {
+        //     updatedAtFilter.lte = new Date(timestamp * 1000);
+        //   }
+        // }
+        // if (Object.keys(updatedAtFilter).length > 0) {
+        //   where.updatedAt = updatedAtFilter;
+        // }
+
+        // For now, log a warning that this filter requires schema changes
+        console.warn(
+          "Warning: updated_at_from/updated_at_to filters require updatedAt field in Department schema"
+        );
+      }
+
+      // Filter by other department fields (OR search for text fields)
+      // Supports: name, departmentCode, description
+      const textSearchFields = ["name", "departmentCode", "description"];
       Object.entries(departmentInfor).forEach(([key, value]) => {
-        if (value) {
-          const valueArray = Array.isArray(value) ? value : value.split(",");
-          filter.OR = valueArray.map(v => ({
-            [key]: {
-              contains: v,
-              mode: "insensitive",
-            },
-          }));
+        if (value && textSearchFields.includes(key)) {
+          const valueArray = Array.isArray(value)
+            ? value
+            : value.split(",").map(v => v.trim());
+          const orConditions = valueArray
+            .filter(v => v && v.length > 0)
+            .map(v => ({
+              [key]: {
+                contains: v,
+                mode: "insensitive",
+              },
+            }));
+
+          if (orConditions.length > 0) {
+            andConditions.push({ OR: orConditions });
+          }
         }
       });
 
+      // Combine all conditions
+      if (andConditions.length > 0) {
+        where.AND = andConditions;
+      }
+
       const options = { page, limit };
-      const where = filter;
       const include = {
         manager: true,
         employees: true,
       };
+
       const departments = await departmentService.read(
         { where, include },
-        {
-          options,
-        }
+        { options }
       );
 
       return res.status(200).json(new SuccessResponseDto(departments));

@@ -8,6 +8,7 @@ const employeeController = {
   getAllEmployees: async (req, res) => {
     try {
       const {
+        q, // Query search for employeeCode and fullName
         departmentId,
         positionId,
         isActive,
@@ -23,55 +24,109 @@ const employeeController = {
       const limit = parseInt(tmpLimit) || 100;
 
       const filter = {};
+      const andConditions = [];
+
+      // Filter by query (q) - search in employeeCode and fullName
+      if (q) {
+        const queryString = typeof q === "string" ? q.trim() : String(q).trim();
+        if (queryString.length > 0) {
+          andConditions.push({
+            OR: [
+              {
+                employeeCode: {
+                  contains: queryString,
+                  mode: "insensitive",
+                },
+              },
+              {
+                fullName: {
+                  contains: queryString,
+                  mode: "insensitive",
+                },
+              },
+            ],
+          });
+        }
+      }
 
       // Filter by personal information (supports OR search)
       Object.entries(personalInfor).forEach(([key, value]) => {
         if (value) {
           const valueArray = Array.isArray(value) ? value : value.split(",");
-          filter.OR = valueArray.map(v => ({
-            [key]: {
-              contains: v,
-              mode: "insensitive",
-            },
-          }));
+          const orConditions = valueArray
+            .filter(v => v && String(v).trim().length > 0)
+            .map(v => ({
+              [key]: {
+                contains: String(v).trim(),
+                mode: "insensitive",
+              },
+            }));
+
+          if (orConditions.length > 0) {
+            andConditions.push({ OR: orConditions });
+          }
         }
       });
 
       // Filter by active status
       if (isActive !== undefined) {
-        filter.isActive = isActive === "true";
+        filter.isActive = isActive === "true" || isActive === true;
       }
 
       // Filter by departmentId (supports multiple IDs)
-      if (departmentId && departmentId.length > 0) {
+      if (departmentId) {
         const departmentIdArray = Array.isArray(departmentId)
-          ? departmentId.map(id => parseInt(id))
-          : departmentId.split(",").map(id => parseInt(id));
-        
-        filter.departmentId = {
-          in: departmentIdArray,
-        };
+          ? departmentId.map(id => parseInt(id)).filter(id => !isNaN(id))
+          : typeof departmentId === "string"
+          ? departmentId
+              .split(",")
+              .map(id => parseInt(id.trim()))
+              .filter(id => !isNaN(id))
+          : [];
+
+        if (departmentIdArray.length === 1) {
+          filter.departmentId = departmentIdArray[0];
+        } else if (departmentIdArray.length > 1) {
+          filter.departmentId = {
+            in: departmentIdArray,
+          };
+        }
       }
 
       // Filter by positionId (supports multiple IDs)
-      if (positionId && positionId.length > 0) {
+      if (positionId) {
         const positionIdArray = Array.isArray(positionId)
-          ? positionId.map(id => parseInt(id))
-          : positionId.split(",").map(id => parseInt(id));
-        
-        filter.positionId = {
-          in: positionIdArray,
-        };
+          ? positionId.map(id => parseInt(id)).filter(id => !isNaN(id))
+          : typeof positionId === "string"
+          ? positionId
+              .split(",")
+              .map(id => parseInt(id.trim()))
+              .filter(id => !isNaN(id))
+          : [];
+
+        if (positionIdArray.length === 1) {
+          filter.positionId = positionIdArray[0];
+        } else if (positionIdArray.length > 1) {
+          filter.positionId = {
+            in: positionIdArray,
+          };
+        }
       }
 
       // Filter by created date range
       if (created_date_from || created_date_to) {
         filter.createdAt = {};
         if (created_date_from) {
-          filter.createdAt.gte = new Date(parseInt(created_date_from) * 1000);
+          const timestamp = parseInt(created_date_from);
+          if (!isNaN(timestamp)) {
+            filter.createdAt.gte = new Date(timestamp * 1000);
+          }
         }
         if (created_date_to) {
-          filter.createdAt.lte = new Date(parseInt(created_date_to) * 1000);
+          const timestamp = parseInt(created_date_to);
+          if (!isNaN(timestamp)) {
+            filter.createdAt.lte = new Date(timestamp * 1000);
+          }
         }
       }
 
@@ -83,13 +138,24 @@ const employeeController = {
       if (updated_date_from || updated_date_to) {
         filter.updatedAt = {};
         if (updated_date_from) {
-          filter.updatedAt.gte = new Date(parseInt(updated_date_from) * 1000);
+          const timestamp = parseInt(updated_date_from);
+          if (!isNaN(timestamp)) {
+            filter.updatedAt.gte = new Date(timestamp * 1000);
+          }
         }
         if (updated_date_to) {
-          filter.updatedAt.lte = new Date(parseInt(updated_date_to) * 1000);
+          const timestamp = parseInt(updated_date_to);
+          if (!isNaN(timestamp)) {
+            filter.updatedAt.lte = new Date(timestamp * 1000);
+          }
         }
       }
       */
+
+      // Combine all AND conditions
+      if (andConditions.length > 0) {
+        filter.AND = andConditions;
+      }
 
       const options = { page, limit };
       const where = filter;
