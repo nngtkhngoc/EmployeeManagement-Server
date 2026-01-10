@@ -15,6 +15,7 @@ import performanceCriteriaRoute from "../modules/performance/performanceCriteria
 import performanceDetailRoute from "../modules/performance/performanceDetail.route.js";
 import performanceDetailScoreRoute from "../modules/performance/performanceDetailScore.route.js";
 import projectRouter from "../modules/project/project.route.js";
+import epicRouter from "../modules/epic/epic.route.js";
 
 export const routes = app => {
   app.use("/healthcheck", (req, res) => res.status(200).send("OK"));
@@ -36,4 +37,5 @@ export const routes = app => {
   app.use("/api/performance-detail", performanceDetailRoute);
   app.use("/api/performance-detail-score", performanceDetailScoreRoute);
   app.use("/api/projects", projectRouter);
+  app.use("/api", epicRouter);
 };
