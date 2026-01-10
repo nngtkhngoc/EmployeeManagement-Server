@@ -18,7 +18,7 @@ jobs:
       - run: npm ci
 
       - name: Create .env file
-        run: echo "DATABASE_URL=postgresql://user:pass@localhost:5432/db" > .env
+        run: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
 
       - name: Prisma Validate
         run: npx prisma validate
