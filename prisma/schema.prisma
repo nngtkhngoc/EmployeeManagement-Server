@@ -70,7 +70,12 @@ model Employee {
   workHistory                                WorkHistory[]
   managedProjects                            Project[]                 @relation("ProjectManager")
   projectMemberships                         ProjectMember[]
+<<<<<<< HEAD
   notifications                              Notification[]
+=======
+  notificationsCreated                       Notification[]            @relation("NotificationCreator")
+  notificationRecipients                     NotificationRecipient[]   @relation("NotificationRecipients")
+>>>>>>> a31870576237ee619639ca10335ea73dcf9cf281
 }
 
 model Contract {
@@ -281,6 +286,7 @@ model ProjectMember {
   @@unique([projectId, employeeId])
 }
 
+<<<<<<< HEAD
 model Notification {
   id         Int              @id @default(autoincrement())
   type       NotificationType
@@ -292,6 +298,9 @@ model Notification {
   relatedId  Int?             @map("related_id")
   employee   Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 }
+=======
+
+>>>>>>> a31870576237ee619639ca10335ea73dcf9cf281
 
 enum WorkStatus {
   WORKING_ONSITE
@@ -370,3 +379,40 @@ enum NotificationType {
   OVERTIME_APPROVED
   GENERAL
 }
+<<<<<<< HEAD
+=======
+
+model Notification {
+  id          Int      @id @default(autoincrement())
+  title       String   @db.VarChar(255)
+  content     String   @db.Text
+  createdBy   Int      @map("created_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+  publishedAt DateTime? @map("published_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  isActive    Boolean  @default(true) @map("is_active")
+
+  creator     Employee @relation("NotificationCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  recipients  NotificationRecipient[]
+
+  @@index([createdBy])
+  @@index([publishedAt])
+  @@index([isActive])
+}
+
+model NotificationRecipient {
+  id             Int      @id @default(autoincrement())
+  notificationId Int      @map("notification_id")
+  employeeId     Int      @map("employee_id")
+  isRead         Boolean  @default(false) @map("is_read")
+  readAt         DateTime? @map("read_at")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  employee       Employee     @relation("NotificationRecipients", fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, employeeId])
+  @@index([employeeId, isRead])
+  @@index([notificationId])
+}
+>>>>>>> a31870576237ee619639ca10335ea73dcf9cf281
