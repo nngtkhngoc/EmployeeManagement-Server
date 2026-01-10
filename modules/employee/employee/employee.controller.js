@@ -8,8 +8,8 @@ const employeeController = {
   getAllEmployees: async (req, res) => {
     try {
       const {
-        department,
-        position,
+        departmentId,
+        positionId,
         isActive,
         page: tmpPage,
         limit: tmpLimit,
@@ -20,6 +20,7 @@ const employeeController = {
 
       const filter = {};
 
+      // Filter by personal information (supports OR search)
       Object.entries(personalInfor).forEach(([key, value]) => {
         if (value) {
           const valueArray = Array.isArray(value) ? value : value.split(",");
@@ -32,33 +33,30 @@ const employeeController = {
         }
       });
 
+      // Filter by active status
       if (isActive !== undefined) {
         filter.isActive = isActive === "true";
       }
 
-      if (department && department.length > 0) {
-        const departmentArray = Array.isArray(department)
-          ? department
-          : department.split(",");
-        filter.department = {
-          OR: departmentArray.map(v => ({
-            OR: [
-              { name: { contains: v, mode: "insensitive" } },
-              { departmentCode: { contains: v, mode: "insensitive" } },
-            ],
-          })),
+      // Filter by departmentId (supports multiple IDs)
+      if (departmentId && departmentId.length > 0) {
+        const departmentIdArray = Array.isArray(departmentId)
+          ? departmentId.map(id => parseInt(id))
+          : departmentId.split(",").map(id => parseInt(id));
+        
+        filter.departmentId = {
+          in: departmentIdArray,
         };
       }
 
-      if (position && position.length > 0) {
-        const positionArray = Array.isArray(position)
-          ? position
-          : position.split(",");
-        filter.position = {
-          name: {
-            in: positionArray,
-            mode: "insensitive",
-          },
+      // Filter by positionId (supports multiple IDs)
+      if (positionId && positionId.length > 0) {
+        const positionIdArray = Array.isArray(positionId)
+          ? positionId.map(id => parseInt(id))
+          : positionId.split(",").map(id => parseInt(id));
+        
+        filter.positionId = {
+          in: positionIdArray,
         };
       }
 
