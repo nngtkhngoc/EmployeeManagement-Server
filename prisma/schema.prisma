@@ -349,6 +349,20 @@ enum ProjectStatus {
   CANCELLED
 }
 
+enum EpicStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+enum EpicPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
 enum NotificationType {
   LEAVE_REQUEST
   UPDATE_REQUEST
