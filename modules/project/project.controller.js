@@ -170,6 +170,18 @@ const projectController = {
     res.status(200).json(new SuccessResponseDto(result));
   }),
 
+  addMultipleEmployeesToProject: catchAsync(async (req, res) => {
+    const { projectId } = req.params;
+    const { employeeIds } = req.body;
+
+    const result = await projectService.addMultipleEmployeesToProject(
+      parseInt(projectId),
+      employeeIds
+    );
+
+    res.status(200).json(new SuccessResponseDto(result));
+  }),
+
   removeEmployeeFromProject: catchAsync(async (req, res) => {
     const params = await projectValidation.removeEmployee.params.validateAsync(
       req.params,

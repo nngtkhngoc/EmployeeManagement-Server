@@ -21,6 +21,10 @@ router
   .post(projectController.addEmployeeToProject);
 
 router
+  .route("/:projectId/employees/bulk")
+  .post(projectController.addMultipleEmployeesToProject);
+
+router
   .route("/:projectId/employees/:employeeId")
   .delete(projectController.removeEmployeeFromProject);
 
