@@ -33,6 +33,14 @@ const epicController = {
         await epicService.delete(id);
         res.status(200).json(new SuccessResponseDto(null, "Epic deleted successfully"));
     }),
+
+    // Set executors (replace all)
+    setExecutors: catchAsync(async (req, res) => {
+        const { epicId } = req.params;
+        const { employeeIds } = req.body;
+        const epic = await epicService.setExecutors(epicId, employeeIds || []);
+        res.status(200).json(new SuccessResponseDto(epic));
+    }),
 };
 
 export default epicController;

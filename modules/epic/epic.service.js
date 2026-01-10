@@ -90,6 +90,76 @@ class EpicService extends BaseService {
             where: { id: parseInt(id) },
         });
     }
+
+    // Executor management - set all executors at once
+    async setExecutors(epicId, employeeIds) {
+        return prisma.$transaction(async tx => {
+            // Verify epic exists
+            const epic = await tx.epic.findUnique({
+                where: { id: parseInt(epicId) },
+            });
+            if (!epic) throw new Error("Epic not found");
+
+            // Verify all employees exist and are active
+            if (employeeIds && employeeIds.length > 0) {
+                const employees = await tx.employee.findMany({
+                    where: {
+                        id: { in: employeeIds.map(id => parseInt(id)) },
+                        isActive: true,
+                    },
+                });
+                if (employees.length !== employeeIds.length) {
+                    throw new Error("Some employees not found or inactive");
+                }
+            }
+
+            // Delete all existing executors
+            await tx.epicExecutor.deleteMany({
+                where: { epicId: parseInt(epicId) },
+            });
+
+            // Add new executors if provided
+            if (employeeIds && employeeIds.length > 0) {
+                await tx.epicExecutor.createMany({
+                    data: employeeIds.map(employeeId => ({
+                        epicId: parseInt(epicId),
+                        employeeId: parseInt(employeeId),
+                    })),
+                });
+            }
+
+            // Return updated epic with executors
+            return tx.epic.findUnique({
+                where: { id: parseInt(epicId) },
+                include: {
+                    executors: {
+                        include: {
+                            employee: {
+                                select: {
+                                    id: true,
+                                    fullName: true,
+                                    email: true,
+                                    avatar: true,
+                                    position: {
+                                        select: {
+                                            id: true,
+                                            name: true,
+                                        },
+                                    },
+                                    department: {
+                                        select: {
+                                            id: true,
+                                            name: true,
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+        });
+    }
 }
 
 export default new EpicService();
