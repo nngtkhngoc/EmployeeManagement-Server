@@ -70,12 +70,8 @@ model Employee {
   workHistory                                WorkHistory[]
   managedProjects                            Project[]                 @relation("ProjectManager")
   projectMemberships                         ProjectMember[]
-<<<<<<< HEAD
-  notifications                              Notification[]
-=======
   notificationsCreated                       Notification[]            @relation("NotificationCreator")
   notificationRecipients                     NotificationRecipient[]   @relation("NotificationRecipients")
->>>>>>> a31870576237ee619639ca10335ea73dcf9cf281
 }
 
 model Contract {
@@ -286,22 +282,6 @@ model ProjectMember {
   @@unique([projectId, employeeId])
 }
 
-<<<<<<< HEAD
-model Notification {
-  id         Int              @id @default(autoincrement())
-  type       NotificationType
-  title      String           @db.VarChar(255)
-  content    String
-  isRead     Boolean          @default(false) @map("is_read")
-  createdAt  DateTime         @default(now()) @map("created_at")
-  employeeId Int              @map("employee_id")
-  relatedId  Int?             @map("related_id")
-  employee   Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-}
-=======
-
->>>>>>> a31870576237ee619639ca10335ea73dcf9cf281
-
 enum WorkStatus {
   WORKING_ONSITE
   WORK_FROM_HOME
@@ -379,8 +359,6 @@ enum NotificationType {
   OVERTIME_APPROVED
   GENERAL
 }
-<<<<<<< HEAD
-=======
 
 model Notification {
   id          Int      @id @default(autoincrement())
@@ -415,4 +393,3 @@ model NotificationRecipient {
   @@index([employeeId, isRead])
   @@index([notificationId])
 }
->>>>>>> a31870576237ee619639ca10335ea73dcf9cf281
