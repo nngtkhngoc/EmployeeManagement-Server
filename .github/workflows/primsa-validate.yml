@@ -19,5 +19,5 @@ jobs:
 
       - name: Prisma Validate
         env:
-          DATABASE_URL: postgresql://user:password@localhost:5432/db
+          DATABASE_URL: echo "DATABASE_URL=postgresql://user:pass@localhost:5432/db" >> $GITHUB_ENV
         run: npx prisma validate
