@@ -68,6 +68,9 @@ model Employee {
   updateRequestsMade                         UpdateRequest[]           @relation("RequestedBy")
   updateRequestsReviewed                     UpdateRequest[]           @relation("ReviewedBy")
   workHistory                                WorkHistory[]
+  managedProjects                            Project[]                 @relation("ProjectManager")
+  projectMemberships                         ProjectMember[]
+  notifications                              Notification[]
 }
 
 model Contract {
@@ -251,6 +254,45 @@ model TimeKeepingReportDetail {
   TimeKeepingReport TimeKeepingReport @relation(fields: [report_id], references: [id], onDelete: Cascade)
 }
 
+model Project {
+  id          Int            @id @default(autoincrement())
+  name        String         @db.VarChar(255)
+  description String?
+  startDate   DateTime       @map("start_date")
+  endDate     DateTime?      @map("end_date")
+  status      ProjectStatus  @default(PLANNING)
+  budget      Decimal?
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+  managerId   Int?           @map("manager_id")
+  manager     Employee?      @relation("ProjectManager", fields: [managerId], references: [id], onDelete: SetNull)
+  members     ProjectMember[]
+}
+
+model ProjectMember {
+  id         Int      @id @default(autoincrement())
+  projectId  Int      @map("project_id")
+  employeeId Int      @map("employee_id")
+  role       String?  @db.VarChar(100)
+  joinedAt   DateTime @default(now()) @map("joined_at")
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, employeeId])
+}
+
+model Notification {
+  id         Int              @id @default(autoincrement())
+  type       NotificationType
+  title      String           @db.VarChar(255)
+  content    String
+  isRead     Boolean          @default(false) @map("is_read")
+  createdAt  DateTime         @default(now()) @map("created_at")
+  employeeId Int              @map("employee_id")
+  relatedId  Int?             @map("related_id")
+  employee   Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
 enum WorkStatus {
   WORKING_ONSITE
   WORK_FROM_HOME
@@ -308,4 +350,23 @@ enum RequestStatus {
   APPROVED
   NOT_APPROVED
   PENDING
+}
+
+enum ProjectStatus {
+  PLANNING
+  IN_PROGRESS
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationType {
+  LEAVE_REQUEST
+  UPDATE_REQUEST
+  PROJECT_ASSIGNED
+  PROJECT_UPDATED
+  CONTRACT_SIGNED
+  PERFORMANCE_REVIEW
+  OVERTIME_APPROVED
+  GENERAL
 }
