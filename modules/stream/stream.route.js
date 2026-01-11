@@ -23,7 +23,11 @@ router.post("/verify-access", verifyToken, streamController.verifyAccess);
  * @desc    Get department call ID for current user
  * @access  Private (requires authentication)
  */
-router.get("/department-call-id", verifyToken, streamController.getDepartmentCallId);
+router.get(
+  "/department-call-id",
+  verifyToken,
+  streamController.getDepartmentCallId
+);
 
 /**
  * Meeting routes
@@ -64,4 +68,3 @@ router.put("/meetings/:id", verifyToken, streamController.updateMeeting);
 router.delete("/meetings/:id", verifyToken, streamController.deleteMeeting);
 
 export default router;
-

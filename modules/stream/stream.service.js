@@ -204,7 +204,7 @@ class StreamService {
       ]);
 
       // Transform to match expected format
-      const formattedMeetings = meetings.map((meeting) => ({
+      const formattedMeetings = meetings.map(meeting => ({
         id: meeting.id,
         callId: meeting.callId,
         title: meeting.title,
@@ -306,8 +306,14 @@ class StreamService {
    */
   async createMeeting(meetingData) {
     try {
-      const { title, description, callId, scheduledAt, departmentId, createdById } =
-        meetingData;
+      const {
+        title,
+        description,
+        callId,
+        scheduledAt,
+        departmentId,
+        createdById,
+      } = meetingData;
 
       if (!title || title.trim() === "") {
         throw new BadRequestException("Tiêu đề cuộc họp là bắt buộc");
@@ -372,9 +378,7 @@ class StreamService {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      throw new BadRequestException(
-        `Lỗi khi tạo cuộc họp: ${error.message}`
-      );
+      throw new BadRequestException(`Lỗi khi tạo cuộc họp: ${error.message}`);
     }
   }
 
@@ -486,9 +490,7 @@ class StreamService {
       if (error instanceof BadRequestException) {
         throw error;
       }
-      throw new BadRequestException(
-        `Lỗi khi xóa cuộc họp: ${error.message}`
-      );
+      throw new BadRequestException(`Lỗi khi xóa cuộc họp: ${error.message}`);
     }
   }
 }
