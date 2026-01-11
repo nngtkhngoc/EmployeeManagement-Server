@@ -45,6 +45,76 @@ const streamController = {
 
     return res.status(200).json(new SuccessResponseDto(result));
   },
+
+  /**
+   * Get all meetings
+   * GET /api/stream/meetings
+   */
+  async getAllMeetings(req, res) {
+    const query = { ...req.query };
+    if (query.page) query.page = parseInt(query.page) || query.page;
+    if (query.limit) query.limit = parseInt(query.limit) || query.limit;
+    if (query.departmentId)
+      query.departmentId = parseInt(query.departmentId) || query.departmentId;
+    if (query.createdById)
+      query.createdById = parseInt(query.createdById) || query.createdById;
+
+    const result = await streamService.getAllMeetings(query);
+    return res.status(200).json(new SuccessResponseDto(result));
+  },
+
+  /**
+   * Get meeting by ID
+   * GET /api/stream/meetings/:id
+   */
+  async getMeetingById(req, res) {
+    const { id } = req.params;
+    const result = await streamService.getMeetingById(id);
+    return res.status(200).json(new SuccessResponseDto(result));
+  },
+
+  /**
+   * Create a new meeting
+   * POST /api/stream/meetings
+   */
+  async createMeeting(req, res) {
+    const userId = req.user?.id;
+    if (!userId) {
+      throw new BadRequestException("Người dùng chưa đăng nhập");
+    }
+
+    const meetingData = {
+      ...req.body,
+      createdById: userId,
+    };
+
+    const result = await streamService.createMeeting(meetingData);
+    return res.status(201).json(new SuccessResponseDto(result));
+  },
+
+  /**
+   * Update meeting
+   * PUT /api/stream/meetings/:id
+   */
+  async updateMeeting(req, res) {
+    const { id } = req.params;
+    const result = await streamService.updateMeeting(id, req.body);
+    return res.status(200).json(new SuccessResponseDto(result));
+  },
+
+  /**
+   * Delete meeting
+   * DELETE /api/stream/meetings/:id
+   */
+  async deleteMeeting(req, res) {
+    const { id } = req.params;
+    await streamService.deleteMeeting(id);
+    return res.status(200).json(
+      new SuccessResponseDto({
+        message: "Xóa cuộc họp thành công",
+      })
+    );
+  },
 };
 
 Object.entries(streamController).forEach(([key, value]) => {

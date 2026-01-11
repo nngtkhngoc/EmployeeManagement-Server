@@ -25,5 +25,43 @@ router.post("/verify-access", verifyToken, streamController.verifyAccess);
  */
 router.get("/department-call-id", verifyToken, streamController.getDepartmentCallId);
 
+/**
+ * Meeting routes
+ */
+/**
+ * @route   GET /api/stream/meetings
+ * @desc    Get all meetings
+ * @access  Private (requires authentication)
+ */
+router.get("/meetings", verifyToken, streamController.getAllMeetings);
+
+/**
+ * @route   GET /api/stream/meetings/:id
+ * @desc    Get meeting by ID
+ * @access  Private (requires authentication)
+ */
+router.get("/meetings/:id", verifyToken, streamController.getMeetingById);
+
+/**
+ * @route   POST /api/stream/meetings
+ * @desc    Create a new meeting
+ * @access  Private (requires authentication)
+ */
+router.post("/meetings", verifyToken, streamController.createMeeting);
+
+/**
+ * @route   PUT /api/stream/meetings/:id
+ * @desc    Update meeting
+ * @access  Private (requires authentication)
+ */
+router.put("/meetings/:id", verifyToken, streamController.updateMeeting);
+
+/**
+ * @route   DELETE /api/stream/meetings/:id
+ * @desc    Delete meeting
+ * @access  Private (requires authentication)
+ */
+router.delete("/meetings/:id", verifyToken, streamController.deleteMeeting);
+
 export default router;
 
