@@ -244,7 +244,7 @@ const employeeController = {
       foreignLanguageLevel: value.foreignLanguageLevel,
       itSkillLevel: value.itSkillLevel,
       healthCertificate: value.healthCertificate,
-      departmentId: value.departmentId,
+      // departmentId: value.departmentId,
       positionId: value.positionId,
     };
 

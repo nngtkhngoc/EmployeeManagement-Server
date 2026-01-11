@@ -43,23 +43,23 @@ model Employee {
   citizenId                                  String                    @map("citizen_id")
   phone                                      String
   email                                      String
-  ethnicity                                  String
-  religion                                   String
-  education                                  Education
-  major                                      String
+  ethnicity                                  String?
+  religion                                   String?
+  education                                  Education?
+  major                                      String?
   siNo                                       String                    @map("si_no")
   hiNo                                       String                    @map("hi_no")
-  resumeLink                                 String?                   @map("resume_link")
-  bankAccount                                String?                   @map("bank_account")
+  resumeLink                                 String                    @map("resume_link")
+  bankAccount                                String                    @map("bank_account")
   maritalStatus                              MaritalStatus?            @map("marital_status")
-  permanentAddress                           String?                   @map("permanent_address")
-  currentAddress                             String?                   @map("current_address")
+  permanentAddress                           String                    @map("permanent_address")
+  currentAddress                             String                    @map("current_address")
   school                                     String?
   studyPeriod                                String?                   @map("study_period")
   degreeCertificate                          String?                   @map("degree_certificate")
   foreignLanguageLevel                       String?                   @map("foreign_language_level")
   itSkillLevel                               String?                   @map("it_skill_level")
-  healthCertificate                          String?                   @map("health_certificate")
+  healthCertificate                          String                    @map("health_certificate")
   createdAt                                  DateTime                  @default(now()) @map("created_at")
   password                                   String
   isActive                                   Boolean                   @default(true)
