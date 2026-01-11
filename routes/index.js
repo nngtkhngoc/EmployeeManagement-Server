@@ -14,6 +14,8 @@ import performanceRouter from "../modules/performance/performance.route.js";
 import performanceCriteriaRoute from "../modules/performance/performanceCriteria.route.js";
 import performanceDetailRoute from "../modules/performance/performanceDetail.route.js";
 import performanceDetailScoreRoute from "../modules/performance/performanceDetailScore.route.js";
+
+import streamRouter from "../modules/stream/stream.route.js";
 import projectRouter from "../modules/project/project.route.js";
 import epicRouter from "../modules/epic/epic.route.js";
 import taskRouter from "../modules/task/task.route.js";
@@ -37,6 +39,7 @@ export const routes = app => {
   app.use("/api/performance-criteria", performanceCriteriaRoute);
   app.use("/api/performance-detail", performanceDetailRoute);
   app.use("/api/performance-detail-score", performanceDetailScoreRoute);
+  app.use("/api/stream", streamRouter);
   app.use("/api/projects", projectRouter);
   app.use("/api", epicRouter);
   app.use("/api", taskRouter);

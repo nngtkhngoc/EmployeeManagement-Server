@@ -1,5 +1,6 @@
 import express from "express";
 import updateRequestController from "./update-request.controller.js";
+import { verifyToken } from "../../middlewares/verifyToken.js";
 
 const router = express.Router();
 
@@ -20,6 +21,8 @@ router
   .route("/:requestId/assign-reviewer")
   .put(updateRequestController.assignReviewer);
 
-router.route("/:requestId/review").put(updateRequestController.reviewRequest);
+router
+  .route("/:requestId/review")
+  .put(verifyToken, updateRequestController.reviewRequest);
 
 export default router;
