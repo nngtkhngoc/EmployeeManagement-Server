@@ -38,9 +38,11 @@
     "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^7.0.10",
     "nodemon": "^3.1.10",
+    "pdf-parse": "^2.4.5",
     "redis": "^5.8.3",
     "socket.io": "^4.8.1",
-    "stream-chat": "^9.28.0"
+    "stream-chat": "^9.28.0",
+    "tesseract.js": "^7.0.0"
   },
   "devDependencies": {
     "prisma": "^6.17.1"

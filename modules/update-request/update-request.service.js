@@ -15,7 +15,10 @@ class UpdateRequestService extends BaseService {
 
   async create(data) {
     return this.repository.create({
-      data,
+      data: {
+        ...data,
+        updated_at: new Date(),
+      },
       include: {
         requestedBy: {
           select: {

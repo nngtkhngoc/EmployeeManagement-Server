@@ -1,6 +1,6 @@
 import express from "express";
 import ContractController from "./contract.controller.js";
-import upload from "../../config/multer.js";
+import upload, { uploadMemory } from "../../config/multer.js";
 import { verifyToken } from "../../middlewares/verifyToken.js";
 import { BadRequestException } from "../../common/exceptions/exception.js";
 
@@ -47,6 +47,14 @@ router.post(
   "/update-expired",
   verifyToken,
   ContractController.updateExpiredContracts
+);
+
+router.post(
+  "/extract-from-pdf",
+  verifyToken,
+  uploadMemory.single("pdf"),
+  handleMulterError,
+  ContractController.extractContractFromPDF
 );
 
 export default router;

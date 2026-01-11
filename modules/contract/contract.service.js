@@ -349,9 +349,97 @@ class ContractService extends BaseService {
     return contract;
   }
 
+  toSearchFilter(filter) {
+    if (!filter || typeof filter !== "object") return {};
+    const {
+      status,
+      type,
+      employeeId,
+      signedById,
+      contractCode,
+      start_date_from,
+      start_date_to,
+      end_date_from,
+      end_date_to,
+      created_date_from,
+      created_date_to,
+    } = filter;
+
+    const where = {};
+
+    if (status !== undefined) where.status = status;
+    if (type !== undefined) where.type = type;
+    if (employeeId !== undefined) where.employeeId = employeeId;
+    if (signedById !== undefined) where.signedById = signedById;
+
+    // Search by contractCode
+    if (contractCode !== undefined && contractCode !== null && contractCode !== "") {
+      where.contractCode = {
+        contains: contractCode,
+        mode: "insensitive",
+      };
+    }
+
+    // Date range filters for startDate
+    if (start_date_from || start_date_to) {
+      where.startDate = {};
+      if (start_date_from) {
+        const dateFrom = new Date(start_date_from);
+        if (!isNaN(dateFrom.getTime())) {
+          where.startDate.gte = dateFrom;
+        }
+      }
+      if (start_date_to) {
+        const dateTo = new Date(start_date_to);
+        if (!isNaN(dateTo.getTime())) {
+          dateTo.setHours(23, 59, 59, 999);
+          where.startDate.lte = dateTo;
+        }
+      }
+    }
+
+    // Date range filters for endDate
+    if (end_date_from || end_date_to) {
+      where.endDate = {};
+      if (end_date_from) {
+        const dateFrom = new Date(end_date_from);
+        if (!isNaN(dateFrom.getTime())) {
+          where.endDate.gte = dateFrom;
+        }
+      }
+      if (end_date_to) {
+        const dateTo = new Date(end_date_to);
+        if (!isNaN(dateTo.getTime())) {
+          dateTo.setHours(23, 59, 59, 999);
+          where.endDate.lte = dateTo;
+        }
+      }
+    }
+
+    // Date range filters for createdAt
+    if (created_date_from || created_date_to) {
+      where.createdAt = {};
+      if (created_date_from) {
+        const dateFrom = new Date(created_date_from);
+        if (!isNaN(dateFrom.getTime())) {
+          where.createdAt.gte = dateFrom;
+        }
+      }
+      if (created_date_to) {
+        const dateTo = new Date(created_date_to);
+        if (!isNaN(dateTo.getTime())) {
+          dateTo.setHours(23, 59, 59, 999);
+          where.createdAt.lte = dateTo;
+        }
+      }
+    }
+
+    return where;
+  }
+
   async read(queryObj = {}, options = {}) {
-    // Extract where clause separately to ensure it's clean for count()
-    const where = queryObj.where || {};
+    // Convert filter params to where clause
+    const where = this.toSearchFilter(queryObj);
 
     const queryOptions = {
       where,

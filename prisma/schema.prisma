@@ -282,8 +282,6 @@ model ProjectMember {
   @@unique([projectId, employeeId])
 }
 
-
-
 enum WorkStatus {
   WORKING_ONSITE
   WORK_FROM_HOME

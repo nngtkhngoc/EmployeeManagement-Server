@@ -10,7 +10,7 @@ export async function generateAccessTokenAndRefreshToken(employeeData) {
     { data: { id: employeeData.id, role: employeeData.role } },
     process.env.ACCESS_TOKEN_SECRET,
     {
-      expiresIn: "5m",
+      expiresIn: "7d",
     }
   );
   const refreshToken = jwt.sign(
