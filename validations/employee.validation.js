@@ -89,6 +89,43 @@ const employeeValidation = {
           "any.required": "Số thẻ BHYT là bắt buộc",
           "string.pattern.base": "Số thẻ BHYT phải đúng 10 chữ số",
         }),
+      resumeLink: Joi.string().allow(null).uri().optional().messages({
+        "string.uri": "Link sơ yếu lí lịch phải là URL hợp lệ",
+      }),
+      bankAccount: Joi.string().allow(null).max(500).optional().messages({
+        "string.max": "Thông tin tài khoản ngân hàng không được quá 500 kí tự",
+      }),
+      maritalStatus: Joi.string()
+        .valid("SINGLE", "MARRIED", "DIVORCED", "WIDOWED")
+        .allow(null)
+        .optional()
+        .messages({
+          "any.only": "Tình trạng hôn nhân không hợp lệ",
+        }),
+      permanentAddress: Joi.string().allow(null).max(255).optional().messages({
+        "string.max": "Địa chỉ thường trú không được quá 255 kí tự",
+      }),
+      currentAddress: Joi.string().allow(null).max(255).optional().messages({
+        "string.max": "Địa chỉ hiện tại không được quá 255 kí tự",
+      }),
+      school: Joi.string().allow(null).max(255).optional().messages({
+        "string.max": "Tên trường không được quá 255 kí tự",
+      }),
+      studyPeriod: Joi.string().allow(null).max(50).optional().messages({
+        "string.max": "Thời gian học không được quá 50 kí tự",
+      }),
+      degreeCertificate: Joi.string().allow(null).uri().optional().messages({
+        "string.uri": "Link bằng cấp phải là URL hợp lệ",
+      }),
+      foreignLanguageLevel: Joi.string().allow(null).max(100).optional().messages({
+        "string.max": "Trình độ ngoại ngữ không được quá 100 kí tự",
+      }),
+      itSkillLevel: Joi.string().allow(null).max(100).optional().messages({
+        "string.max": "Trình độ tin học không được quá 100 kí tự",
+      }),
+      healthCertificate: Joi.string().allow(null).uri().optional().messages({
+        "string.uri": "Link giấy khám sức khỏe phải là URL hợp lệ",
+      }),
       departmentId: Joi.number().integer().required().messages({
         "any.required": "Phòng ban là bắt buộc",
         "number.base": "Phòng ban phải là số",
@@ -178,6 +215,43 @@ const employeeValidation = {
         .messages({
           "string.pattern.base": "Số thẻ BHYT phải đúng 10 chữ số",
         }),
+      resumeLink: Joi.string().allow(null).uri().optional().messages({
+        "string.uri": "Link sơ yếu lí lịch phải là URL hợp lệ",
+      }),
+      bankAccount: Joi.string().allow(null).max(500).optional().messages({
+        "string.max": "Thông tin tài khoản ngân hàng không được quá 500 kí tự",
+      }),
+      maritalStatus: Joi.string()
+        .valid("SINGLE", "MARRIED", "DIVORCED", "WIDOWED")
+        .allow(null)
+        .optional()
+        .messages({
+          "any.only": "Tình trạng hôn nhân không hợp lệ",
+        }),
+      permanentAddress: Joi.string().allow(null).max(255).optional().messages({
+        "string.max": "Địa chỉ thường trú không được quá 255 kí tự",
+      }),
+      currentAddress: Joi.string().allow(null).max(255).optional().messages({
+        "string.max": "Địa chỉ hiện tại không được quá 255 kí tự",
+      }),
+      school: Joi.string().allow(null).max(255).optional().messages({
+        "string.max": "Tên trường không được quá 255 kí tự",
+      }),
+      studyPeriod: Joi.string().allow(null).max(50).optional().messages({
+        "string.max": "Thời gian học không được quá 50 kí tự",
+      }),
+      degreeCertificate: Joi.string().allow(null).uri().optional().messages({
+        "string.uri": "Link bằng cấp phải là URL hợp lệ",
+      }),
+      foreignLanguageLevel: Joi.string().allow(null).max(100).optional().messages({
+        "string.max": "Trình độ ngoại ngữ không được quá 100 kí tự",
+      }),
+      itSkillLevel: Joi.string().allow(null).max(100).optional().messages({
+        "string.max": "Trình độ tin học không được quá 100 kí tự",
+      }),
+      healthCertificate: Joi.string().allow(null).uri().optional().messages({
+        "string.uri": "Link giấy khám sức khỏe phải là URL hợp lệ",
+      }),
       departmentId: Joi.number().integer().optional().messages({
         "number.base": "Phòng ban phải là số",
       }),
