@@ -6,10 +6,9 @@ import { BadRequestException } from "../../common/exceptions/exception.js";
 
 const router = express.Router();
 
-// Middleware để xử lý lỗi từ multer
 const handleMulterError = (err, req, res, next) => {
+  //console.log(err);
   if (err) {
-    // Convert multer/Cloudinary errors thành Error object
     const errorMessage =
       typeof err === "string" ? err : err.message || "File upload failed";
     return next(new BadRequestException(errorMessage));
@@ -21,14 +20,14 @@ router.get("/", ContractController.getAllContracts);
 router.get("/:id", ContractController.getContractById);
 router.post(
   "/",
-  verifyToken,
+  //verifyToken,
   upload.single("attachment"),
   handleMulterError,
   ContractController.createContract
 );
 router.put(
   "/:id",
-  verifyToken,
+  // verifyToken,
   upload.single("attachment"),
   handleMulterError,
   ContractController.updateContract
@@ -36,7 +35,7 @@ router.put(
 router.delete("/:id", verifyToken, ContractController.deleteContract);
 router.patch(
   "/:id/status",
-  verifyToken,
+  //verifyToken,
   ContractController.updateContractStatus
 );
 router.get("/employee/:employeeId", ContractController.getContractsByEmployee);
@@ -45,13 +44,13 @@ router.post("/:id/renew", verifyToken, ContractController.renewContract);
 router.get("/stats/overview", ContractController.getContractStats);
 router.post(
   "/update-expired",
-  verifyToken,
+  // verifyToken,
   ContractController.updateExpiredContracts
 );
 
 router.post(
   "/extract-from-pdf",
-  verifyToken,
+  //verifyToken,
   uploadMemory.single("pdf"),
   handleMulterError,
   ContractController.extractContractFromPDF

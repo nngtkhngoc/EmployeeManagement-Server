@@ -44,6 +44,13 @@ const departmentValidation = {
       managerId: Joi.number().integer().allow(null).optional().messages({
         "number.base": "Mã người quản lý phải là số nguyên",
       }),
+
+      status: Joi.string()
+        .valid("ACTIVE", "INACTIVE")
+        .optional()
+        .messages({
+          "any.only": "Trạng thái phòng ban phải là ACTIVE hoặc INACTIVE",
+        }),
     });
   },
 
@@ -86,6 +93,13 @@ const departmentValidation = {
       managerId: Joi.number().integer().allow(null).optional().messages({
         "number.base": "Mã người quản lý phải là số nguyên",
       }),
+
+      status: Joi.string()
+        .valid("ACTIVE", "INACTIVE")
+        .optional()
+        .messages({
+          "any.only": "Trạng thái phòng ban phải là ACTIVE hoặc INACTIVE",
+        }),
     });
   },
 };

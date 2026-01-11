@@ -8,9 +8,14 @@ const employeeController = {
   getAllEmployees: async (req, res) => {
     try {
       const {
-        department,
-        position,
+        q, // Query search for employeeCode and fullName
+        departmentId,
+        positionId,
         isActive,
+        created_date_from,
+        created_date_to,
+        updated_date_from,
+        updated_date_to,
         page: tmpPage,
         limit: tmpLimit,
         ...personalInfor
@@ -19,47 +24,137 @@ const employeeController = {
       const limit = parseInt(tmpLimit) || 100;
 
       const filter = {};
+      const andConditions = [];
 
+      // Filter by query (q) - search in employeeCode and fullName
+      if (q) {
+        const queryString = typeof q === "string" ? q.trim() : String(q).trim();
+        if (queryString.length > 0) {
+          andConditions.push({
+            OR: [
+              {
+                employeeCode: {
+                  contains: queryString,
+                  mode: "insensitive",
+                },
+              },
+              {
+                fullName: {
+                  contains: queryString,
+                  mode: "insensitive",
+                },
+              },
+            ],
+          });
+        }
+      }
+
+      // Filter by personal information (supports OR search)
       Object.entries(personalInfor).forEach(([key, value]) => {
         if (value) {
           const valueArray = Array.isArray(value) ? value : value.split(",");
-          filter.OR = valueArray.map(v => ({
-            [key]: {
-              contains: v,
-              mode: "insensitive",
-            },
-          }));
+          const orConditions = valueArray
+            .filter(v => v && String(v).trim().length > 0)
+            .map(v => ({
+              [key]: {
+                contains: String(v).trim(),
+                mode: "insensitive",
+              },
+            }));
+
+          if (orConditions.length > 0) {
+            andConditions.push({ OR: orConditions });
+          }
         }
       });
 
+      // Filter by active status
       if (isActive !== undefined) {
-        filter.isActive = isActive === "true";
+        filter.isActive = isActive === "true" || isActive === true;
       }
 
-      if (department && department.length > 0) {
-        const departmentArray = Array.isArray(department)
-          ? department
-          : department.split(",");
-        filter.department = {
-          OR: departmentArray.map(v => ({
-            OR: [
-              { name: { contains: v, mode: "insensitive" } },
-              { departmentCode: { contains: v, mode: "insensitive" } },
-            ],
-          })),
-        };
+      // Filter by departmentId (supports multiple IDs)
+      if (departmentId) {
+        const departmentIdArray = Array.isArray(departmentId)
+          ? departmentId.map(id => parseInt(id)).filter(id => !isNaN(id))
+          : typeof departmentId === "string"
+          ? departmentId
+              .split(",")
+              .map(id => parseInt(id.trim()))
+              .filter(id => !isNaN(id))
+          : [];
+
+        if (departmentIdArray.length === 1) {
+          filter.departmentId = departmentIdArray[0];
+        } else if (departmentIdArray.length > 1) {
+          filter.departmentId = {
+            in: departmentIdArray,
+          };
+        }
       }
 
-      if (position && position.length > 0) {
-        const positionArray = Array.isArray(position)
-          ? position
-          : position.split(",");
-        filter.position = {
-          name: {
-            in: positionArray,
-            mode: "insensitive",
-          },
-        };
+      // Filter by positionId (supports multiple IDs)
+      if (positionId) {
+        const positionIdArray = Array.isArray(positionId)
+          ? positionId.map(id => parseInt(id)).filter(id => !isNaN(id))
+          : typeof positionId === "string"
+          ? positionId
+              .split(",")
+              .map(id => parseInt(id.trim()))
+              .filter(id => !isNaN(id))
+          : [];
+
+        if (positionIdArray.length === 1) {
+          filter.positionId = positionIdArray[0];
+        } else if (positionIdArray.length > 1) {
+          filter.positionId = {
+            in: positionIdArray,
+          };
+        }
+      }
+
+      // Filter by created date range
+      if (created_date_from || created_date_to) {
+        filter.createdAt = {};
+        if (created_date_from) {
+          const timestamp = parseInt(created_date_from);
+          if (!isNaN(timestamp)) {
+            filter.createdAt.gte = new Date(timestamp * 1000);
+          }
+        }
+        if (created_date_to) {
+          const timestamp = parseInt(created_date_to);
+          if (!isNaN(timestamp)) {
+            filter.createdAt.lte = new Date(timestamp * 1000);
+          }
+        }
+      }
+
+      // Note: Employee schema doesn't have updatedAt field
+      // If you need updated date filtering, add updatedAt field to the Prisma schema:
+      // updatedAt DateTime @updatedAt @map("updated_at")
+      // Then uncomment below:
+      /*
+      if (updated_date_from || updated_date_to) {
+        filter.updatedAt = {};
+        if (updated_date_from) {
+          const timestamp = parseInt(updated_date_from);
+          if (!isNaN(timestamp)) {
+            filter.updatedAt.gte = new Date(timestamp * 1000);
+          }
+        }
+        if (updated_date_to) {
+          const timestamp = parseInt(updated_date_to);
+          if (!isNaN(timestamp)) {
+            filter.updatedAt.lte = new Date(timestamp * 1000);
+          }
+        }
+      }
+      */
+
+      // Combine all AND conditions
+      if (andConditions.length > 0) {
+        filter.AND = andConditions;
       }
 
       const options = { page, limit };
@@ -138,6 +233,17 @@ const employeeController = {
       major: value.major,
       siNo: value.siNo,
       hiNo: value.hiNo,
+      resumeLink: value.resumeLink,
+      bankAccount: value.bankAccount,
+      maritalStatus: value.maritalStatus,
+      permanentAddress: value.permanentAddress,
+      currentAddress: value.currentAddress,
+      school: value.school,
+      studyPeriod: value.studyPeriod,
+      degreeCertificate: value.degreeCertificate,
+      foreignLanguageLevel: value.foreignLanguageLevel,
+      itSkillLevel: value.itSkillLevel,
+      healthCertificate: value.healthCertificate,
       departmentId: value.departmentId,
       positionId: value.positionId,
     };
@@ -170,6 +276,17 @@ const employeeController = {
       major: value.major,
       siNo: value.siNo,
       hiNo: value.hiNo,
+      resumeLink: value.resumeLink,
+      bankAccount: value.bankAccount,
+      maritalStatus: value.maritalStatus,
+      permanentAddress: value.permanentAddress,
+      currentAddress: value.currentAddress,
+      school: value.school,
+      studyPeriod: value.studyPeriod,
+      degreeCertificate: value.degreeCertificate,
+      foreignLanguageLevel: value.foreignLanguageLevel,
+      itSkillLevel: value.itSkillLevel,
+      healthCertificate: value.healthCertificate,
       departmentId: value.departmentId,
       positionId: value.positionId,
       workStatus: value.workStatus,

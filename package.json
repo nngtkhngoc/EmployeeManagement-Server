@@ -5,6 +5,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:api": "node tests/api-test.js",
+    "test:upload": "node tests/test-contract-upload.js",
+    "test:ai": "node tests/test-ai-agent.js",
+    "test:contract": "node tests/test-contract-upload.js && node tests/test-ai-agent.js",
     "dev": "node --watch server.js",
     "seed": "node prisma/seed.js"
   },
@@ -27,6 +30,7 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "express-rate-limit": "^8.1.0",
+    "form-data": "^4.0.5",
     "getstream": "^8.8.0",
     "http": "^0.0.1-security",
     "ioredis": "^5.8.1",
@@ -38,7 +42,7 @@
     "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^7.0.10",
     "nodemon": "^3.1.10",
-    "pdf-parse": "^2.4.5",
+    "pdfjs-dist": "^5.4.530",
     "redis": "^5.8.3",
     "socket.io": "^4.8.1",
     "stream-chat": "^9.28.0",
