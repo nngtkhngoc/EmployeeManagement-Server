@@ -260,19 +260,22 @@ model TimeKeepingReportDetail {
 }
 
 model Project {
-  id          Int            @id @default(autoincrement())
-  name        String         @db.VarChar(255)
-  description String?
-  startDate   DateTime       @map("start_date")
-  endDate     DateTime?      @map("end_date")
-  status      ProjectStatus  @default(PLANNING)
-  budget      Decimal?
-  createdAt   DateTime       @default(now()) @map("created_at")
-  updatedAt   DateTime       @updatedAt @map("updated_at")
-  managerId   Int?           @map("manager_id")
-  manager     Employee?      @relation("ProjectManager", fields: [managerId], references: [id], onDelete: SetNull)
-  members     ProjectMember[]
-  epics       Epic[]
+  id                       Int            @id @default(autoincrement())
+  name                     String         @db.VarChar(255)
+  description              String?
+  githubRepoUrl            String?        @map("github_repo_url") @db.VarChar(500)
+  githubAppId              String?        @map("github_app_id") @db.VarChar(50)
+  githubAppInstallationId  String?        @map("github_app_installation_id") @db.VarChar(50)
+  startDate                DateTime       @map("start_date")
+  endDate                  DateTime?      @map("end_date")
+  status                   ProjectStatus  @default(PLANNING)
+  budget                   Decimal?
+  createdAt                DateTime       @default(now()) @map("created_at")
+  updatedAt                DateTime       @updatedAt @map("updated_at")
+  managerId                Int?           @map("manager_id")
+  manager                  Employee?      @relation("ProjectManager", fields: [managerId], references: [id], onDelete: SetNull)
+  members                  ProjectMember[]
+  epics                    Epic[]
 }
 
 model ProjectMember {
