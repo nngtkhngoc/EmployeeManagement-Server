@@ -2,41 +2,40 @@ import performanceDetailService from "./performanceDetail.service.js";
 import performanceCriteriaService from "./performanceCriteria.service.js";
 import performanceDetailScoreService from "./performanceDetailScore.service.js";
 import { SuccessResponseDto } from "../../common/dtos/successResponseDto.js";
+import catchAsync from "../../common/catchAsync.js";
+import { BadRequestException } from "../../common/exceptions/exception.js";
 
 const performanceDetailController = {
   createReportDetail: async (req, res) => {
-    try {
-      const performanceDetailData = {
-        employeeId: req.body.employeeId,
-        supervisorId: req.body.supervisorId,
-        performanceReportId: req.body.performanceReportId,
-        // description: req.body.description,
-      }
-      const newReportDetail = await performanceDetailService.create(performanceDetailData);
-      res.status(200).json(new SuccessResponseDto(newReportDetail));
-    } catch (error) {
-      console.log("Error creating performance report detail", error);
-      return res.status(500).send();
-    }
+    const { employeeId, supervisorId, performanceReportId, description } = req.body;
+    const performanceDetailData = {
+      employeeId,
+      supervisorId,
+      performanceReportId,
+      description,
+    };
+    const newReportDetail = await performanceDetailService.create(performanceDetailData);
+    res.status(201).json(new SuccessResponseDto(newReportDetail));
   },
   getAllReportDetail: async (req, res) => {
-    try {
-      const reportDetails = await performanceDetailService.read();
-      return res.status(200).json(new SuccessResponseDto(reportDetails));
-    } catch (error) {
-      console.log("Error getting performance report details", error);
-      return res.status(500).send();
-    }
+    const reportDetails = await performanceDetailService.read();
+    return res.status(200).json(new SuccessResponseDto(reportDetails));
   },
   getReportDetail: async (req, res) => {
-    try {
-      const reportDetailId = req.params.id;
-      const reportDetail = await performanceDetailService.readById(reportDetailId);
-      return res.status(200).json(new SuccessResponseDto(reportDetail));
-    } catch (error) {
-      console.log("Error getting performance report detail by ID", error);
-      return res.status(500).send();
-    }
+    const { id } = req.params;
+    const reportDetail = await performanceDetailService.readById(parseInt(id), {
+      include: {
+        employee: true,
+        supervisor: true,
+        scores: {
+          include: {
+            performanceCriteria: true
+          }
+        }
+      }
+    });
+    if (!reportDetail) throw new BadRequestException("Performance report detail not found");
+    return res.status(200).json(new SuccessResponseDto(reportDetail));
   },
   getScore: async (req, res) => {
     try {
@@ -76,17 +75,36 @@ const performanceDetailController = {
       return res.status(500).send();
     }
   },
-  updateReportDetail: async (req, res) => {},
-  deleteReportDetail: async (req, res) => {
-    try {
-      const reportDetailId = req.params.id;
-      await performanceDetailService.delete({id: parseInt(reportDetailId)}, "hard");
-      return res.status(200).json(new SuccessResponseDto({ message: "Performance report detail deleted successfully" }));
-    } catch (error) {
-      console.log("Error deleting performance report detail", error);
-      return res.status(500).send();
+  updateReportDetail: async (req, res) => {
+    const { id } = req.params;
+    const { description } = req.body;
+
+    const reportDetail = await performanceDetailService.readById(parseInt(id));
+    if (!reportDetail) throw new BadRequestException("Performance report detail not found");
+
+    const updateData = {};
+    if (description !== undefined) {
+      updateData.description = description;
     }
+
+    const updated = await performanceDetailService.update(
+      { id: parseInt(id) },
+      updateData
+    );
+    return res.status(200).json(new SuccessResponseDto(updated));
+  },
+  deleteReportDetail: async (req, res) => {
+    const { id } = req.params;
+    const reportDetail = await performanceDetailService.readById(parseInt(id));
+    if (!reportDetail) throw new BadRequestException("Performance report detail not found");
+
+    await performanceDetailService.delete({ id: parseInt(id) }, "hard");
+    return res.status(200).json(new SuccessResponseDto({ message: "Performance report detail deleted successfully" }));
   }
 }
+
+Object.entries(performanceDetailController).forEach(([key, value]) => {
+  performanceDetailController[key] = catchAsync(value);
+});
 
 export default performanceDetailController;

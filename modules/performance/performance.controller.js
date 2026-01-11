@@ -28,7 +28,21 @@ const performanceController = {
     console.log(req.params.id)
     try {
       const reportId = req.params.id;
-      const performanceData = await performanceService.readById(parseInt(reportId));
+      const performanceData = await performanceService.readById(parseInt(reportId), {
+        include: {
+          details: {
+            include: {
+              employee: true,
+              supervisor: true,
+              scores: {
+                include: {
+                  performanceCriteria: true
+                }
+              }
+            }
+          }
+        }
+      });
       return res.status(200).json(new SuccessResponseDto(performanceData));
     } catch (error) {
       console.log("Error getting performance report by ID", error);
