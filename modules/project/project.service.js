@@ -229,28 +229,26 @@ class ProjectService extends BaseService {
     });
   }
 
-  async findManyWithPagination(queryObj = {}, options = {}) {
-    const { page = 1, limit = 20, sortBy, sortOrder = "asc" } = options;
-
+  async findManyWithPagination(filter = {}, page = 1, limit = 20, select = null) {
     const skip = (page - 1) * parseInt(limit);
     const take = parseInt(limit);
 
     const queryOptions = {
-      ...queryObj,
+      where: filter,
       skip,
       take,
-      include: {
+    };
+
+    // Use select if provided, otherwise use include
+    if (select) {
+      queryOptions.select = select;
+    } else {
+      queryOptions.include = {
         manager: {
           select: {
             id: true,
-            // assignedAt: true,
-            // employee: {
-            //   select: {
-            //     id: true,
-            //     fullName: true,
-            //     email: true,
-            //   },
-            // },
+            fullName: true,
+            email: true,
           },
         },
         members: {
@@ -267,16 +265,12 @@ class ProjectService extends BaseService {
             },
           },
         },
-      },
-    };
-
-    if (sortBy) {
-      queryOptions.orderBy = { [sortBy]: sortOrder };
+      };
     }
 
     const [data, total] = await Promise.all([
       prisma.project.findMany(queryOptions),
-      prisma.project.count({ where: queryObj.where }),
+      prisma.project.count({ where: filter }),
     ]);
 
     return {
