@@ -48,6 +48,17 @@ model Employee {
   major                                      String
   siNo                                       String                    @map("si_no")
   hiNo                                       String                    @map("hi_no")
+  resumeLink                                 String?                   @map("resume_link")
+  bankAccount                                String?                   @map("bank_account")
+  maritalStatus                              MaritalStatus?            @map("marital_status")
+  permanentAddress                           String?                   @map("permanent_address")
+  currentAddress                             String?                   @map("current_address")
+  school                                     String?
+  studyPeriod                                String?                   @map("study_period")
+  degreeCertificate                          String?                   @map("degree_certificate")
+  foreignLanguageLevel                       String?                   @map("foreign_language_level")
+  itSkillLevel                               String?                   @map("it_skill_level")
+  healthCertificate                          String?                   @map("health_certificate")
   createdAt                                  DateTime                  @default(now()) @map("created_at")
   password                                   String
   isActive                                   Boolean                   @default(true)
@@ -373,6 +384,13 @@ enum Gender {
   FEMALE
   OTHER
   PREFER_NOT_TO_SAY
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
 }
 
 enum Education {
