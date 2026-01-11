@@ -10,6 +10,25 @@ class EpicService extends BaseService {
         return prisma.epic.findMany({
             where: { projectId: parseInt(projectId) },
             orderBy: { createdAt: "desc" },
+            include: {
+                executors: {
+                    include: {
+                        employee: {
+                            select: {
+                                id: true,
+                                fullName: true,
+                                email: true,
+                                avatar: true,
+                            },
+                        },
+                    },
+                },
+                _count: {
+                    select: {
+                        tasks: true,
+                    },
+                },
+            },
         });
     }
 
