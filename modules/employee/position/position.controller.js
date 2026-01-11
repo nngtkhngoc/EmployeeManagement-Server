@@ -7,23 +7,64 @@ import positionService from "./position.service.js";
 const positionController = {
   getAllPositions: async (req, res) => {
     try {
-      const { page: tmpPage, limit: tmpLimit, ...positionInfor } = req.query;
+      const {
+        page: tmpPage,
+        limit: tmpLimit,
+        status, // Filter by status (ACTIVE or INACTIVE)
+        ...positionInfor
+      } = req.query;
       const page = parseInt(tmpPage) || 1;
       const limit = parseInt(tmpLimit) || 100;
 
       const filter = {};
+      const andConditions = [];
 
+      // Filter by status
+      if (status) {
+        const statusArray = Array.isArray(status)
+          ? status
+          : typeof status === "string"
+          ? status.split(",").map(s => s.trim().toUpperCase())
+          : [];
+
+        const validStatuses = statusArray.filter(
+          s => s === "ACTIVE" || s === "INACTIVE"
+        );
+
+        if (validStatuses.length === 1) {
+          filter.status = validStatuses[0];
+        } else if (validStatuses.length > 1) {
+          filter.status = { in: validStatuses };
+        }
+      }
+
+      // Filter by other position fields (OR search for text fields)
+      // Supports: name
+      const textSearchFields = ["name"];
       Object.entries(positionInfor).forEach(([key, value]) => {
-        if (value) {
-          const valueArray = Array.isArray(value) ? value : value.split(",");
-          filter.OR = valueArray.map(v => ({
-            [key]: {
-              contains: v,
-              mode: "insensitive",
-            },
-          }));
+        if (value && textSearchFields.includes(key)) {
+          const valueArray = Array.isArray(value)
+            ? value
+            : value.split(",").map(v => v.trim());
+          const orConditions = valueArray
+            .filter(v => v && v.length > 0)
+            .map(v => ({
+              [key]: {
+                contains: v,
+                mode: "insensitive",
+              },
+            }));
+
+          if (orConditions.length > 0) {
+            andConditions.push({ OR: orConditions });
+          }
         }
       });
+
+      // Combine all conditions
+      if (andConditions.length > 0) {
+        filter.AND = andConditions;
+      }
 
       const options = { page, limit };
       const where = filter;
@@ -64,11 +105,8 @@ const positionController = {
       });
 
     const positionData = {
-      positionCode: value.positionCode,
       name: value.name,
-      foundedAt: value.foundedAt,
-      description: value.description,
-      managerId: value.managerId,
+      status: value.status || "ACTIVE", // Default to ACTIVE if not provided
     };
 
     const newPosition = await positionService.create(positionData);
@@ -77,10 +115,10 @@ const positionController = {
   },
 
   deletePosition: async (req, res) => {
-    const existingDept = await positionService.readById(
+    const existingPosition = await positionService.readById(
       parseInt(req.params.id)
     );
-    if (!existingDept) throw new Error("Phòng ban không tồn tại.");
+    if (!existingPosition) throw new Error("Vị trí không tồn tại.");
 
     await positionService.delete({ id: parseInt(req.params.id) });
 
@@ -102,7 +140,15 @@ const positionController = {
 
     const positionData = {
       name: value.name,
+      status: value.status, // Allow updating status
     };
+
+    // Remove undefined fields to avoid overwriting with undefined
+    Object.keys(positionData).forEach(key => {
+      if (positionData[key] === undefined) {
+        delete positionData[key];
+      }
+    });
 
     const updatedPosition = await positionService.update(
       { id: parseInt(req.params.id) },
