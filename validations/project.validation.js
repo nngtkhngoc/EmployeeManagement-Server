@@ -91,11 +91,20 @@ const projectValidation = {
 
   getProjects: {
     query: Joi.object({
+      q: Joi.string().optional(),
       name: Joi.string().optional(),
       status: Joi.string()
         .valid(...PROJECT_STATUS)
         .optional(),
       managerId: Joi.number().integer().optional(),
+      created_date_from: Joi.number().integer().optional(),
+      created_date_to: Joi.number().integer().optional(),
+      updated_date_from: Joi.number().integer().optional(),
+      updated_date_to: Joi.number().integer().optional(),
+      start_date_from: Joi.number().integer().optional(),
+      start_date_to: Joi.number().integer().optional(),
+      end_date_from: Joi.number().integer().optional(),
+      end_date_to: Joi.number().integer().optional(),
       page: Joi.number().integer().min(1).optional(),
       limit: Joi.number().integer().min(1).max(100).optional(),
     }).unknown(false),
