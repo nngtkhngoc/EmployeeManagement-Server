@@ -9,22 +9,25 @@ datasource db {
 }
 
 model Department {
-  id             Int           @id @default(autoincrement())
-  departmentCode String        @map("department_code") @db.VarChar(4)
-  name           String        @db.VarChar(100)
-  foundedAt      DateTime      @map("founded_at")
+  id             Int              @id @default(autoincrement())
+  departmentCode String           @map("department_code") @db.VarChar(4)
+  name           String           @db.VarChar(100)
+  foundedAt      DateTime         @map("founded_at")
   description    String?
-  createdAt      DateTime      @default(now()) @map("created_at")
-  managerId      Int?          @unique @map("manager_id")
-  manager        Employee?     @relation("DepartmentManager", fields: [managerId], references: [id])
+  status         DepartmentStatus @default(ACTIVE) @map("status")
+  createdAt      DateTime         @default(now()) @map("created_at")
+  managerId      Int?             @unique @map("manager_id")
+  manager        Employee?        @relation("DepartmentManager", fields: [managerId], references: [id])
   employees      Employee[]
   WorkHistory    WorkHistory[]
+  meetings       Meeting[]
 }
 
 model Position {
-  id          Int           @id @default(autoincrement())
-  name        String        @unique @db.VarChar(100)
-  createdAt   DateTime      @default(now()) @map("created_at")
+  id          Int            @id @default(autoincrement())
+  name        String         @unique @db.VarChar(100)
+  status      PositionStatus @default(ACTIVE) @map("status")
+  createdAt   DateTime       @default(now()) @map("created_at")
   employees   Employee[]
   workHistory WorkHistory[]
 }
@@ -40,12 +43,23 @@ model Employee {
   citizenId                                  String                    @map("citizen_id")
   phone                                      String
   email                                      String
-  ethnicity                                  String
-  religion                                   String
-  education                                  Education
-  major                                      String
+  ethnicity                                  String?
+  religion                                   String?
+  education                                  Education?
+  major                                      String?
   siNo                                       String                    @map("si_no")
   hiNo                                       String                    @map("hi_no")
+  resumeLink                                 String                    @map("resume_link")
+  bankAccount                                String                    @map("bank_account")
+  maritalStatus                              MaritalStatus?            @map("marital_status")
+  permanentAddress                           String                    @map("permanent_address")
+  currentAddress                             String                    @map("current_address")
+  school                                     String?
+  studyPeriod                                String?                   @map("study_period")
+  degreeCertificate                          String?                   @map("degree_certificate")
+  foreignLanguageLevel                       String?                   @map("foreign_language_level")
+  itSkillLevel                               String?                   @map("it_skill_level")
+  healthCertificate                          String                    @map("health_certificate")
   createdAt                                  DateTime                  @default(now()) @map("created_at")
   password                                   String
   isActive                                   Boolean                   @default(true)
@@ -72,6 +86,9 @@ model Employee {
   projectMemberships                         ProjectMember[]
   notificationsCreated                       Notification[]            @relation("NotificationCreator")
   notificationRecipients                     NotificationRecipient[]   @relation("NotificationRecipients")
+  epicExecutorAssignments                    EpicExecutor[]            @relation("EpicExecutors")
+  taskAssignments                            TaskAssignment[]          @relation("TaskAssignments")
+  meetingsCreated                            Meeting[]                 @relation("MeetingCreator")
 }
 
 model Contract {
@@ -256,18 +273,22 @@ model TimeKeepingReportDetail {
 }
 
 model Project {
-  id          Int            @id @default(autoincrement())
-  name        String         @db.VarChar(255)
-  description String?
-  startDate   DateTime       @map("start_date")
-  endDate     DateTime?      @map("end_date")
-  status      ProjectStatus  @default(PLANNING)
-  budget      Decimal?
-  createdAt   DateTime       @default(now()) @map("created_at")
-  updatedAt   DateTime       @updatedAt @map("updated_at")
-  managerId   Int?           @map("manager_id")
-  manager     Employee?      @relation("ProjectManager", fields: [managerId], references: [id], onDelete: SetNull)
-  members     ProjectMember[]
+  id                       Int            @id @default(autoincrement())
+  name                     String         @db.VarChar(255)
+  description              String?
+  githubRepoUrl            String?        @map("github_repo_url") @db.VarChar(500)
+  githubAppId              String?        @map("github_app_id") @db.VarChar(50)
+  githubAppInstallationId  String?        @map("github_app_installation_id") @db.VarChar(50)
+  startDate                DateTime       @map("start_date")
+  endDate                  DateTime?      @map("end_date")
+  status                   ProjectStatus  @default(PLANNING)
+  budget                   Decimal?
+  createdAt                DateTime       @default(now()) @map("created_at")
+  updatedAt                DateTime       @updatedAt @map("updated_at")
+  managerId                Int?           @map("manager_id")
+  manager                  Employee?      @relation("ProjectManager", fields: [managerId], references: [id], onDelete: SetNull)
+  members                  ProjectMember[]
+  epics                    Epic[]
 }
 
 model ProjectMember {
@@ -282,7 +303,70 @@ model ProjectMember {
   @@unique([projectId, employeeId])
 }
 
+model Epic {
+  id          Int            @id @default(autoincrement())
+  name        String         @db.VarChar(255)
+  description String?        @db.Text
+  status      EpicStatus     @default(TODO)
+  priority    EpicPriority   @default(MEDIUM)
+  startDate   DateTime?      @map("start_date")
+  endDate     DateTime?      @map("end_date")
+  projectId   Int            @map("project_id")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+  project     Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  executors   EpicExecutor[]
+  tasks       Task[]
 
+  @@index([projectId])
+}
+
+model EpicExecutor {
+  id         Int      @id @default(autoincrement())
+  epicId     Int      @map("epic_id")
+  employeeId Int      @map("employee_id")
+  assignedAt DateTime @default(now()) @map("assigned_at")
+  epic       Epic     @relation(fields: [epicId], references: [id], onDelete: Cascade)
+  employee   Employee @relation("EpicExecutors", fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([epicId, employeeId])
+  @@index([epicId])
+  @@index([employeeId])
+}
+
+model Task {
+  id           Int              @id @default(autoincrement())
+  name         String           @db.VarChar(255)
+  description  String?          @db.Text
+  status       TaskStatus       @default(TODO)
+  priority     TaskPriority     @default(MEDIUM)
+  startDate    DateTime?        @map("start_date")
+  dueDate      DateTime?        @map("due_date")
+  epicId       Int              @map("epic_id")
+  parentTaskId Int?             @map("parent_task_id")
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+  epic         Epic             @relation(fields: [epicId], references: [id], onDelete: Cascade)
+  parentTask   Task?            @relation("TaskSubtasks", fields: [parentTaskId], references: [id], onDelete: Cascade)
+  subtasks     Task[]           @relation("TaskSubtasks")
+  assignments  TaskAssignment[]
+
+  @@index([epicId])
+  @@index([parentTaskId])
+}
+
+model TaskAssignment {
+  id         Int      @id @default(autoincrement())
+  taskId     Int      @map("task_id")
+  employeeId Int      @map("employee_id")
+  assignedAt DateTime @default(now()) @map("assigned_at")
+  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  employee   Employee @relation("TaskAssignments", fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, employeeId])
+  @@index([taskId])
+  @@index([employeeId])
+}
 
 enum WorkStatus {
   WORKING_ONSITE
@@ -305,6 +389,13 @@ enum Gender {
   FEMALE
   OTHER
   PREFER_NOT_TO_SAY
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
 }
 
 enum Education {
@@ -351,6 +442,45 @@ enum ProjectStatus {
   CANCELLED
 }
 
+enum DepartmentStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum PositionStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum EpicStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+enum EpicPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+  CANCELLED
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
 enum NotificationType {
   LEAVE_REQUEST
   UPDATE_REQUEST
@@ -363,17 +493,17 @@ enum NotificationType {
 }
 
 model Notification {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(255)
-  content     String   @db.Text
-  createdBy   Int      @map("created_by")
-  createdAt   DateTime @default(now()) @map("created_at")
+  id          Int       @id @default(autoincrement())
+  title       String    @db.VarChar(255)
+  content     String    @db.Text
+  createdBy   Int       @map("created_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
   publishedAt DateTime? @map("published_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  isActive    Boolean  @default(true) @map("is_active")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  isActive    Boolean   @default(true) @map("is_active")
 
-  creator     Employee @relation("NotificationCreator", fields: [createdBy], references: [id], onDelete: Cascade)
-  recipients  NotificationRecipient[]
+  creator    Employee                @relation("NotificationCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  recipients NotificationRecipient[]
 
   @@index([createdBy])
   @@index([publishedAt])
@@ -381,17 +511,45 @@ model Notification {
 }
 
 model NotificationRecipient {
-  id             Int      @id @default(autoincrement())
-  notificationId Int      @map("notification_id")
-  employeeId     Int      @map("employee_id")
-  isRead         Boolean  @default(false) @map("is_read")
+  id             Int       @id @default(autoincrement())
+  notificationId Int       @map("notification_id")
+  employeeId     Int       @map("employee_id")
+  isRead         Boolean   @default(false) @map("is_read")
   readAt         DateTime? @map("read_at")
-  createdAt      DateTime @default(now()) @map("created_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
 
-  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  employee       Employee     @relation("NotificationRecipients", fields: [employeeId], references: [id], onDelete: Cascade)
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  employee     Employee     @relation("NotificationRecipients", fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@unique([notificationId, employeeId])
   @@index([employeeId, isRead])
   @@index([notificationId])
+}
+
+enum MeetingStatus {
+  SCHEDULED
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+model Meeting {
+  id           String        @id @default(uuid())
+  callId       String        @map("call_id") @db.VarChar(255)
+  title        String        @db.VarChar(255)
+  description  String?       @db.Text
+  status       MeetingStatus @default(SCHEDULED)
+  scheduledAt  DateTime?     @map("scheduled_at")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  createdById  Int           @map("created_by_id")
+  departmentId Int?          @map("department_id")
+
+  createdBy  Employee    @relation("MeetingCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  department Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+
+  @@index([createdById])
+  @@index([departmentId])
+  @@index([status])
+  @@index([createdAt])
 }

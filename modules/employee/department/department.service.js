@@ -53,6 +53,7 @@ class DepartmentService extends BaseService {
           name: departmentData.name,
           description: departmentData.description,
           foundedAt: departmentData.foundedAt,
+          status: departmentData.status || "ACTIVE", // Default to ACTIVE if not provided
           manager: departmentData.managerId
             ? { connect: { id: departmentData.managerId } }
             : undefined,
@@ -141,7 +142,15 @@ class DepartmentService extends BaseService {
         name: departmentData.name,
         description: departmentData.description,
         foundedAt: departmentData.foundedAt,
+        status: departmentData.status, // Allow updating status
       };
+
+      // Remove undefined fields to avoid overwriting with undefined
+      Object.keys(updateData).forEach((key) => {
+        if (updateData[key] === undefined) {
+          delete updateData[key];
+        }
+      });
 
       if (hasManagerField && newManagerId !== oldManagerId) {
         updateData.manager = newManagerId

@@ -12,22 +12,32 @@ class EmployeeService extends BaseService {
 
   async create(employeeData) {
     return prisma.$transaction(async tx => {
-      const department = await tx.department.findUnique({
-        where: { id: employeeData.departmentId },
-      });
-      if (!department) throw new Error("Phòng ban không tồn tại");
+      // Check department only if departmentId is provided
+      let department = null;
+      if (employeeData.departmentId) {
+        department = await tx.department.findUnique({
+          where: { id: employeeData.departmentId },
+        });
+        if (!department) throw new Error("Phòng ban không tồn tại");
+      }
 
-      const position = await tx.position.findUnique({
-        where: { id: employeeData.positionId },
-      });
-      if (!position) throw new Error("Vị trí không tồn tại");
+      let position = null;
+      if (employeeData.positionId) {
+        position = await tx.position.findUnique({
+          where: { id: employeeData.positionId },
+        });
+        if (!position) throw new Error("Vị trí không tồn tại");
+      }
 
-      const [nextVal] =
-        await tx.$queryRaw`SELECT nextval('employee_code_seq') AS seq;`;
-      const seqNum = nextVal.seq;
+      const [maxResult] =
+        await tx.$queryRaw`SELECT COALESCE(MAX(id), 0) + 1 AS next_id FROM "Employee";`;
+      const seqNum = maxResult.next_id;
       const employeeCode = "EM" + seqNum.toString().padStart(3, "0");
 
-      const password = employeeCode + department.departmentCode;
+      // Generate password: employeeCode + (departmentCode if exists, otherwise empty string)
+      const password = department
+        ? employeeCode + department.departmentCode
+        : employeeCode;
       const hashedPassword = await hashPassword(password);
 
       const { departmentId, positionId } = employeeData;
@@ -39,7 +49,9 @@ class EmployeeService extends BaseService {
           ...employeeData,
           employeeCode,
           password: hashedPassword,
-          department: { connect: { id: departmentId } },
+          ...(departmentId && {
+            department: { connect: { id: departmentId } },
+          }),
           position: { connect: { id: positionId } },
         },
         include: {
@@ -48,7 +60,8 @@ class EmployeeService extends BaseService {
         },
       });
 
-      if (position.name.toLowerCase() === "manager") {
+      // Only set manager if department exists and position is manager
+      if (departmentId && position.name.toLowerCase() === "manager") {
         const updatedDepartment = await departmentService.updateManager(
           tx,
           { id: parseInt(departmentId) },
@@ -60,13 +73,16 @@ class EmployeeService extends BaseService {
         newEmployee.department = updatedDepartment;
       }
 
-      const workHistory = await workHistoryService.createWorkHistory(tx, {
-        employeeId: newEmployee.id,
-        departmentId: newEmployee.departmentId,
-        positionId: newEmployee.positionId,
-      });
+      // Only create work history if department exists
+      if (departmentId && newEmployee.departmentId) {
+        const workHistory = await workHistoryService.createWorkHistory(tx, {
+          employeeId: newEmployee.id,
+          departmentId: newEmployee.departmentId,
+          positionId: newEmployee.positionId,
+        });
 
-      newEmployee.workHistory = workHistory;
+        newEmployee.workHistory = workHistory;
+      }
 
       return newEmployee;
     });

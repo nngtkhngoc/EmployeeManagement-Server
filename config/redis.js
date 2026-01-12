@@ -12,7 +12,7 @@ async function connectRedis() {
       host: process.env.REDIS_HOST,
       port: process.env.REDIS_PORT,
       reconnectStrategy: retries => {
-        if (retries > 5) {
+        if (retries > 0) {
           console.error("❌ Redis reconnect failed after 5 attempts.");
           return new Error("Redis reconnect failed");
         }

@@ -67,9 +67,9 @@ const employeeValidation = {
           "VOCATIONAL_TRAINING",
           "OTHER"
         )
-        .required()
+        .allow(null)
+        .optional()
         .messages({
-          "any.required": "Trình độ học vấn là bắt buộc",
           "any.only": "Trình độ học vấn không hợp lệ",
         }),
       major: Joi.string().max(100).optional().messages({
@@ -89,11 +89,56 @@ const employeeValidation = {
           "any.required": "Số thẻ BHYT là bắt buộc",
           "string.pattern.base": "Số thẻ BHYT phải đúng 10 chữ số",
         }),
-      departmentId: Joi.number().integer().required().messages({
-        "any.required": "Phòng ban là bắt buộc",
+      resumeLink: Joi.string().uri().required().messages({
+        "any.required": "Sơ yếu lí lịch là bắt buộc",
+        "string.uri": "Link sơ yếu lí lịch phải là URL hợp lệ",
+      }),
+      bankAccount: Joi.string().max(500).required().messages({
+        "any.required": "Tài khoản ngân hàng là bắt buộc",
+        "string.max": "Thông tin tài khoản ngân hàng không được quá 500 kí tự",
+      }),
+      maritalStatus: Joi.string()
+        .valid("SINGLE", "MARRIED", "DIVORCED", "WIDOWED")
+        .allow(null)
+        .optional()
+        .messages({
+          "any.only": "Tình trạng hôn nhân không hợp lệ",
+        }),
+      permanentAddress: Joi.string().max(255).required().messages({
+        "any.required": "Địa chỉ thường trú là bắt buộc",
+        "string.max": "Địa chỉ thường trú không được quá 255 kí tự",
+      }),
+      currentAddress: Joi.string().max(255).required().messages({
+        "any.required": "Địa chỉ hiện tại là bắt buộc",
+        "string.max": "Địa chỉ hiện tại không được quá 255 kí tự",
+      }),
+      school: Joi.string().allow(null).max(255).optional().messages({
+        "string.max": "Tên trường không được quá 255 kí tự",
+      }),
+      studyPeriod: Joi.string().allow(null).max(50).optional().messages({
+        "string.max": "Thời gian học không được quá 50 kí tự",
+      }),
+      degreeCertificate: Joi.string().allow(null).uri().optional().messages({
+        "string.uri": "Link bằng cấp phải là URL hợp lệ",
+      }),
+      foreignLanguageLevel: Joi.string()
+        .allow(null)
+        .max(100)
+        .optional()
+        .messages({
+          "string.max": "Trình độ ngoại ngữ không được quá 100 kí tự",
+        }),
+      itSkillLevel: Joi.string().allow(null).max(100).optional().messages({
+        "string.max": "Trình độ tin học không được quá 100 kí tự",
+      }),
+      healthCertificate: Joi.string().uri().required().messages({
+        "any.required": "Giấy khám sức khỏe là bắt buộc",
+        "string.uri": "Link giấy khám sức khỏe phải là URL hợp lệ",
+      }),
+      departmentId: Joi.number().integer().allow(null).optional().messages({
         "number.base": "Phòng ban phải là số",
       }),
-      positionId: Joi.number().integer().required().messages({
+      positionId: Joi.number().integer().allow(null).optional().messages({
         "any.required": "Chức vụ là bắt buộc",
         "number.base": "Chức vụ phải là số",
       }),
@@ -178,6 +223,47 @@ const employeeValidation = {
         .messages({
           "string.pattern.base": "Số thẻ BHYT phải đúng 10 chữ số",
         }),
+      resumeLink: Joi.string().allow(null).uri().optional().messages({
+        "string.uri": "Link sơ yếu lí lịch phải là URL hợp lệ",
+      }),
+      bankAccount: Joi.string().allow(null).max(500).optional().messages({
+        "string.max": "Thông tin tài khoản ngân hàng không được quá 500 kí tự",
+      }),
+      maritalStatus: Joi.string()
+        .valid("SINGLE", "MARRIED", "DIVORCED", "WIDOWED")
+        .allow(null)
+        .optional()
+        .messages({
+          "any.only": "Tình trạng hôn nhân không hợp lệ",
+        }),
+      permanentAddress: Joi.string().allow(null).max(255).optional().messages({
+        "string.max": "Địa chỉ thường trú không được quá 255 kí tự",
+      }),
+      currentAddress: Joi.string().allow(null).max(255).optional().messages({
+        "string.max": "Địa chỉ hiện tại không được quá 255 kí tự",
+      }),
+      school: Joi.string().allow(null).max(255).optional().messages({
+        "string.max": "Tên trường không được quá 255 kí tự",
+      }),
+      studyPeriod: Joi.string().allow(null).max(50).optional().messages({
+        "string.max": "Thời gian học không được quá 50 kí tự",
+      }),
+      degreeCertificate: Joi.string().allow(null).uri().optional().messages({
+        "string.uri": "Link bằng cấp phải là URL hợp lệ",
+      }),
+      foreignLanguageLevel: Joi.string()
+        .allow(null)
+        .max(100)
+        .optional()
+        .messages({
+          "string.max": "Trình độ ngoại ngữ không được quá 100 kí tự",
+        }),
+      itSkillLevel: Joi.string().allow(null).max(100).optional().messages({
+        "string.max": "Trình độ tin học không được quá 100 kí tự",
+      }),
+      healthCertificate: Joi.string().allow(null).uri().optional().messages({
+        "string.uri": "Link giấy khám sức khỏe phải là URL hợp lệ",
+      }),
       departmentId: Joi.number().integer().optional().messages({
         "number.base": "Phòng ban phải là số",
       }),
