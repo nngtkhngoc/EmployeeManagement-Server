@@ -70,8 +70,6 @@ model Employee {
   resumeLink                                 String?                   @map("resume_link")
   school                                     String?
   studyPeriod                                String?                   @map("study_period")
-  citizenIdBackImage                         String?                   @map("citizen_id_back_image")
-  citizenIdFrontImage                        String?                   @map("citizen_id_front_image")
   attendanceDetails                          AttendanceReportDetail[]
   contractsSigned                            Contract[]                @relation("EmployeeContract")
   contractsAsSigner                          Contract[]                @relation("SignedByManager")
