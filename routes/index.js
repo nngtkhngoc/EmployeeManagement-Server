@@ -21,6 +21,7 @@ import projectRouter from "../modules/project/project.route.js";
 import epicRouter from "../modules/epic/epic.route.js";
 import taskRouter from "../modules/task/task.route.js";
 import uploadRouter from "../modules/upload/upload.route.js";
+import githubRouter from "../modules/github/github.route.js";
 
 export const routes = app => {
   app.use("/healthcheck", (req, res) => res.status(200).send("OK"));
@@ -47,4 +48,5 @@ export const routes = app => {
   app.use("/api", epicRouter);
   app.use("/api", taskRouter);
   app.use("/api/upload", uploadRouter);
+  app.use("/api/github", githubRouter);
 };

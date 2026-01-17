@@ -229,6 +229,47 @@ class ProjectService extends BaseService {
     });
   }
 
+  async findUnique(where, select = null) {
+    const queryOptions = { where };
+
+    // Use select if provided, otherwise use include
+    if (select) {
+      queryOptions.select = select;
+    } else {
+      queryOptions.include = {
+        manager: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            avatar: true,
+            employeeCode: true,
+          },
+        },
+        members: {
+          select: {
+            id: true,
+            projectId: true,
+            employeeId: true,
+            role: true,
+            joinedAt: true,
+            employee: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+                avatar: true,
+                employeeCode: true,
+              },
+            },
+          },
+        },
+      };
+    }
+
+    return prisma.project.findUnique(queryOptions);
+  }
+
   async findManyWithPagination(filter = {}, page = 1, limit = 20, select = null) {
     const skip = (page - 1) * parseInt(limit);
     const take = parseInt(limit);
