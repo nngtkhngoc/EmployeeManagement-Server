@@ -14,20 +14,20 @@ model Department {
   name           String           @db.VarChar(100)
   foundedAt      DateTime         @map("founded_at")
   description    String?
-  status         DepartmentStatus @default(ACTIVE) @map("status")
   createdAt      DateTime         @default(now()) @map("created_at")
   managerId      Int?             @unique @map("manager_id")
+  status         DepartmentStatus @default(ACTIVE) @map("status")
   manager        Employee?        @relation("DepartmentManager", fields: [managerId], references: [id])
   employees      Employee[]
-  WorkHistory    WorkHistory[]
   meetings       Meeting[]
+  WorkHistory    WorkHistory[]
 }
 
 model Position {
   id          Int            @id @default(autoincrement())
   name        String         @unique @db.VarChar(100)
-  status      PositionStatus @default(ACTIVE) @map("status")
   createdAt   DateTime       @default(now()) @map("created_at")
+  status      PositionStatus @default(ACTIVE) @map("status")
   employees   Employee[]
   workHistory WorkHistory[]
 }
@@ -43,52 +43,52 @@ model Employee {
   citizenId                                  String                    @map("citizen_id")
   phone                                      String
   email                                      String
-  ethnicity                                  String?
-  religion                                   String?
-  education                                  Education?
-  major                                      String?
+  ethnicity                                  String
+  religion                                   String
+  education                                  Education
+  major                                      String
   siNo                                       String                    @map("si_no")
   hiNo                                       String                    @map("hi_no")
-  resumeLink                                 String                    @map("resume_link")
-  bankAccount                                String                    @map("bank_account")
-  maritalStatus                              MaritalStatus?            @map("marital_status")
-  permanentAddress                           String                    @map("permanent_address")
-  currentAddress                             String                    @map("current_address")
-  school                                     String?
-  studyPeriod                                String?                   @map("study_period")
-  degreeCertificate                          String?                   @map("degree_certificate")
-  foreignLanguageLevel                       String?                   @map("foreign_language_level")
-  itSkillLevel                               String?                   @map("it_skill_level")
-  healthCertificate                          String                    @map("health_certificate")
   createdAt                                  DateTime                  @default(now()) @map("created_at")
   password                                   String
   isActive                                   Boolean                   @default(true)
   departmentId                               Int?                      @map("department_id")
   positionId                                 Int?                      @map("position_id")
   role                                       String                    @default("Employee")
+  bankAccount                                String?                   @map("bank_account")
+  currentAddress                             String?                   @map("current_address")
+  degreeCertificate                          String?                   @map("degree_certificate")
+  foreignLanguageLevel                       String?                   @map("foreign_language_level")
+  healthCertificate                          String?                   @map("health_certificate")
+  itSkillLevel                               String?                   @map("it_skill_level")
+  maritalStatus                              MaritalStatus?            @map("marital_status")
+  permanentAddress                           String?                   @map("permanent_address")
+  resumeLink                                 String?                   @map("resume_link")
+  school                                     String?
+  studyPeriod                                String?                   @map("study_period")
   attendanceDetails                          AttendanceReportDetail[]
   contractsSigned                            Contract[]                @relation("EmployeeContract")
   contractsAsSigner                          Contract[]                @relation("SignedByManager")
   managedDepartment                          Department?               @relation("DepartmentManager")
   department                                 Department?               @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   position                                   Position?                 @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  epicExecutorAssignments                    EpicExecutor[]            @relation("EpicExecutors")
   leaveApplications                          LeaveApplication[]
+  meetingsCreated                            Meeting[]                 @relation("MeetingCreator")
+  notificationsCreated                       Notification[]            @relation("NotificationCreator")
+  notificationRecipients                     NotificationRecipient[]   @relation("NotificationRecipients")
   OverTime_OverTime_approved_by_idToEmployee OverTime[]                @relation("OverTime_approved_by_idToEmployee")
   OverTime_OverTime_employee_idToEmployee    OverTime[]                @relation("OverTime_employee_idToEmployee")
   payrollDetails                             PayrollReportDetail[]
   performanceDetails                         PerformanceReportDetail[] @relation("PerformanceOfEmployee")
   supervisedReports                          PerformanceReportDetail[] @relation("PerformanceSupervisor")
+  managedProjects                            Project[]                 @relation("ProjectManager")
+  projectMemberships                         ProjectMember[]
+  taskAssignments                            TaskAssignment[]          @relation("TaskAssignments")
   TimeKeepingReportDetail                    TimeKeepingReportDetail[]
   updateRequestsMade                         UpdateRequest[]           @relation("RequestedBy")
   updateRequestsReviewed                     UpdateRequest[]           @relation("ReviewedBy")
   workHistory                                WorkHistory[]
-  managedProjects                            Project[]                 @relation("ProjectManager")
-  projectMemberships                         ProjectMember[]
-  notificationsCreated                       Notification[]            @relation("NotificationCreator")
-  notificationRecipients                     NotificationRecipient[]   @relation("NotificationRecipients")
-  epicExecutorAssignments                    EpicExecutor[]            @relation("EpicExecutors")
-  taskAssignments                            TaskAssignment[]          @relation("TaskAssignments")
-  meetingsCreated                            Meeting[]                 @relation("MeetingCreator")
 }
 
 model Contract {
@@ -146,14 +146,14 @@ model LeaveApplication {
 
 model UpdateRequest {
   id            Int           @id @default(autoincrement())
+  oldValue      String?       @map("old_value")
+  newValue      String?       @map("new_value")
   status        RequestStatus @default(PENDING)
   requestedById Int           @map("requested_by_id")
   reviewedById  Int?          @map("reviewed_by_id")
   content       String
   created_at    DateTime      @default(now())
   updated_at    DateTime
-  newValue      String?       @map("new_value")
-  oldValue      String?       @map("old_value")
   requestedBy   Employee      @relation("RequestedBy", fields: [requestedById], references: [id], onDelete: Cascade)
   reviewedBy    Employee?     @relation("ReviewedBy", fields: [reviewedById], references: [id], onDelete: Cascade)
 }
@@ -273,22 +273,22 @@ model TimeKeepingReportDetail {
 }
 
 model Project {
-  id                       Int            @id @default(autoincrement())
-  name                     String         @db.VarChar(255)
-  description              String?
-  githubRepoUrl            String?        @map("github_repo_url") @db.VarChar(500)
-  githubAppId              String?        @map("github_app_id") @db.VarChar(50)
-  githubAppInstallationId  String?        @map("github_app_installation_id") @db.VarChar(50)
-  startDate                DateTime       @map("start_date")
-  endDate                  DateTime?      @map("end_date")
-  status                   ProjectStatus  @default(PLANNING)
-  budget                   Decimal?
-  createdAt                DateTime       @default(now()) @map("created_at")
-  updatedAt                DateTime       @updatedAt @map("updated_at")
-  managerId                Int?           @map("manager_id")
-  manager                  Employee?      @relation("ProjectManager", fields: [managerId], references: [id], onDelete: SetNull)
-  members                  ProjectMember[]
-  epics                    Epic[]
+  id                      Int             @id @default(autoincrement())
+  name                    String          @db.VarChar(255)
+  description             String?
+  startDate               DateTime        @map("start_date")
+  endDate                 DateTime?       @map("end_date")
+  status                  ProjectStatus   @default(PLANNING)
+  budget                  Decimal?
+  createdAt               DateTime        @default(now()) @map("created_at")
+  updatedAt               DateTime        @updatedAt @map("updated_at")
+  managerId               Int?            @map("manager_id")
+  githubAppId             String?         @map("github_app_id") @db.VarChar(50)
+  githubAppInstallationId String?         @map("github_app_installation_id") @db.VarChar(50)
+  githubRepoUrl           String?         @map("github_repo_url") @db.VarChar(500)
+  epics                   Epic[]
+  manager                 Employee?       @relation("ProjectManager", fields: [managerId], references: [id])
+  members                 ProjectMember[]
 }
 
 model ProjectMember {
@@ -297,8 +297,8 @@ model ProjectMember {
   employeeId Int      @map("employee_id")
   role       String?  @db.VarChar(100)
   joinedAt   DateTime @default(now()) @map("joined_at")
-  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@unique([projectId, employeeId])
 }
@@ -306,7 +306,7 @@ model ProjectMember {
 model Epic {
   id          Int            @id @default(autoincrement())
   name        String         @db.VarChar(255)
-  description String?        @db.Text
+  description String?
   status      EpicStatus     @default(TODO)
   priority    EpicPriority   @default(MEDIUM)
   startDate   DateTime?      @map("start_date")
@@ -326,8 +326,8 @@ model EpicExecutor {
   epicId     Int      @map("epic_id")
   employeeId Int      @map("employee_id")
   assignedAt DateTime @default(now()) @map("assigned_at")
-  epic       Epic     @relation(fields: [epicId], references: [id], onDelete: Cascade)
   employee   Employee @relation("EpicExecutors", fields: [employeeId], references: [id], onDelete: Cascade)
+  epic       Epic     @relation(fields: [epicId], references: [id], onDelete: Cascade)
 
   @@unique([epicId, employeeId])
   @@index([epicId])
@@ -337,7 +337,7 @@ model EpicExecutor {
 model Task {
   id           Int              @id @default(autoincrement())
   name         String           @db.VarChar(255)
-  description  String?          @db.Text
+  description  String?
   status       TaskStatus       @default(TODO)
   priority     TaskPriority     @default(MEDIUM)
   startDate    DateTime?        @map("start_date")
@@ -360,12 +360,64 @@ model TaskAssignment {
   taskId     Int      @map("task_id")
   employeeId Int      @map("employee_id")
   assignedAt DateTime @default(now()) @map("assigned_at")
-  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
   employee   Employee @relation("TaskAssignments", fields: [employeeId], references: [id], onDelete: Cascade)
+  task       Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
   @@unique([taskId, employeeId])
   @@index([taskId])
   @@index([employeeId])
+}
+
+model Notification {
+  id          Int                     @id @default(autoincrement())
+  title       String                  @db.VarChar(255)
+  content     String
+  createdBy   Int                     @map("created_by")
+  createdAt   DateTime                @default(now()) @map("created_at")
+  publishedAt DateTime?               @map("published_at")
+  updatedAt   DateTime                @updatedAt @map("updated_at")
+  isActive    Boolean                 @default(true) @map("is_active")
+  creator     Employee                @relation("NotificationCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+  recipients  NotificationRecipient[]
+
+  @@index([createdBy])
+  @@index([publishedAt])
+  @@index([isActive])
+}
+
+model NotificationRecipient {
+  id             Int          @id @default(autoincrement())
+  notificationId Int          @map("notification_id")
+  employeeId     Int          @map("employee_id")
+  isRead         Boolean      @default(false) @map("is_read")
+  readAt         DateTime?    @map("read_at")
+  createdAt      DateTime     @default(now()) @map("created_at")
+  employee       Employee     @relation("NotificationRecipients", fields: [employeeId], references: [id], onDelete: Cascade)
+  notification   Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, employeeId])
+  @@index([employeeId, isRead])
+  @@index([notificationId])
+}
+
+model Meeting {
+  id           String        @id @default(uuid())
+  callId       String        @map("call_id") @db.VarChar(255)
+  title        String        @db.VarChar(255)
+  description  String?
+  status       MeetingStatus @default(SCHEDULED)
+  scheduledAt  DateTime?     @map("scheduled_at")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  createdById  Int           @map("created_by_id")
+  departmentId Int?          @map("department_id")
+  createdBy    Employee      @relation("MeetingCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  department   Department?   @relation(fields: [departmentId], references: [id])
+
+  @@index([createdById])
+  @@index([departmentId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 enum WorkStatus {
@@ -429,9 +481,9 @@ enum ContractStatus {
 }
 
 enum RequestStatus {
+  PENDING
   APPROVED
   NOT_APPROVED
-  PENDING
 }
 
 enum ProjectStatus {
@@ -492,64 +544,9 @@ enum NotificationType {
   GENERAL
 }
 
-model Notification {
-  id          Int       @id @default(autoincrement())
-  title       String    @db.VarChar(255)
-  content     String    @db.Text
-  createdBy   Int       @map("created_by")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  publishedAt DateTime? @map("published_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  isActive    Boolean   @default(true) @map("is_active")
-
-  creator    Employee                @relation("NotificationCreator", fields: [createdBy], references: [id], onDelete: Cascade)
-  recipients NotificationRecipient[]
-
-  @@index([createdBy])
-  @@index([publishedAt])
-  @@index([isActive])
-}
-
-model NotificationRecipient {
-  id             Int       @id @default(autoincrement())
-  notificationId Int       @map("notification_id")
-  employeeId     Int       @map("employee_id")
-  isRead         Boolean   @default(false) @map("is_read")
-  readAt         DateTime? @map("read_at")
-  createdAt      DateTime  @default(now()) @map("created_at")
-
-  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  employee     Employee     @relation("NotificationRecipients", fields: [employeeId], references: [id], onDelete: Cascade)
-
-  @@unique([notificationId, employeeId])
-  @@index([employeeId, isRead])
-  @@index([notificationId])
-}
-
 enum MeetingStatus {
   SCHEDULED
   ONGOING
   COMPLETED
   CANCELLED
-}
-
-model Meeting {
-  id           String        @id @default(uuid())
-  callId       String        @map("call_id") @db.VarChar(255)
-  title        String        @db.VarChar(255)
-  description  String?       @db.Text
-  status       MeetingStatus @default(SCHEDULED)
-  scheduledAt  DateTime?     @map("scheduled_at")
-  createdAt    DateTime      @default(now()) @map("created_at")
-  updatedAt    DateTime      @updatedAt @map("updated_at")
-  createdById  Int           @map("created_by_id")
-  departmentId Int?          @map("department_id")
-
-  createdBy  Employee    @relation("MeetingCreator", fields: [createdById], references: [id], onDelete: Cascade)
-  department Department? @relation(fields: [departmentId], references: [id], onDelete: SetNull)
-
-  @@index([createdById])
-  @@index([departmentId])
-  @@index([status])
-  @@index([createdAt])
 }
