@@ -196,7 +196,7 @@ class ProjectService extends BaseService {
           },
           isActive: true,
         },
-        select: { email: true },
+        select: { email: true, id: true, fullName: true, githubUsername: true },
       });
       await githubService.inviteMultipleUsers(projectId, employees);
       // Fetch and return the updated project with all members
