@@ -383,6 +383,46 @@ class GitHubService {
     }
 
     /**
+     * Verify GitHub connection for a project
+     * @param {number} projectId - Project ID
+     * @returns {Promise<{connected: boolean, error: string|null}>}
+     */
+    async verifyConnection(projectId) {
+        try {
+            const { octokit, project } = await this.getOctokitForProject(projectId);
+            const { owner, repo } = this.parseRepoUrl(project.githubRepoUrl);
+
+            // Try to access the repository
+            await octokit.rest.repos.get({ owner, repo });
+
+            // Update project's connection status
+            await prisma.project.update({
+                where: { id: projectId },
+                data: {
+                    githubConnected: true,
+                    githubLastVerified: new Date(),
+                },
+            });
+
+            return { connected: true, error: null };
+        } catch (error) {
+            // Update project's connection status to false
+            await prisma.project.update({
+                where: { id: projectId },
+                data: {
+                    githubConnected: false,
+                    githubLastVerified: new Date(),
+                },
+            });
+
+            return {
+                connected: false,
+                error: error.message || "Failed to connect to GitHub repository",
+            };
+        }
+    }
+
+    /**
      * Remove user from repository asynchronously (non-blocking)
      * @param {number} projectId - Project ID
      * @param {string} username - GitHub username to remove
