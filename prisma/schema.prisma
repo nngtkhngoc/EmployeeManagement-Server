@@ -41,6 +41,8 @@ model Employee {
   gender                                     Gender
   birthday                                   DateTime
   citizenId                                  String                    @map("citizen_id")
+  citizenIdFrontImage                        String?                   @map("citizen_id_front_image")
+  citizenIdBackImage                         String?                   @map("citizen_id_back_image")
   phone                                      String
   email                                      String
   ethnicity                                  String

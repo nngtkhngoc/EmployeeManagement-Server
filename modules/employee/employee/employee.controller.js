@@ -160,7 +160,19 @@ const employeeController = {
       const options = { page, limit };
       const where = filter;
       const include = {
-        department: true,
+        department: {
+          include: {
+            manager: {
+              select: {
+                id: true,
+                fullName: true,
+                avatar: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
         position: true,
         managedDepartment: true,
         contractsAsSigner: true,
@@ -190,7 +202,19 @@ const employeeController = {
     const { id } = req.params;
     const employee = await employeeService.readById(parseInt(id), {
       include: {
-        department: true,
+        department: {
+          include: {
+            manager: {
+              select: {
+                id: true,
+                fullName: true,
+                avatar: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
         position: true,
         managedDepartment: true,
         contractsAsSigner: true,
