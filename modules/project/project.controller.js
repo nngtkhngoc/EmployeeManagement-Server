@@ -158,12 +158,19 @@ const projectController = {
     const newProject = await projectService.create(projectData);
 
     // Trigger GitHub connection verification asynchronously if GitHub credentials are provided
-    if (newProject.githubRepoUrl && newProject.githubAppId && newProject.githubAppInstallationId) {
+    if (
+      newProject.githubRepoUrl &&
+      newProject.githubAppId &&
+      newProject.githubAppInstallationId
+    ) {
       setImmediate(async () => {
         try {
           await githubService.verifyConnection(newProject.id);
         } catch (error) {
-          console.error(`[GitHub] Failed to verify connection for project ${newProject.id}:`, error.message);
+          console.error(
+            `[GitHub] Failed to verify connection for project ${newProject.id}:`,
+            error.message
+          );
         }
       });
     }
@@ -186,15 +193,24 @@ const projectController = {
     );
 
     // Trigger GitHub connection verification if GitHub fields were updated
-    const hasGitHubFields = updateData.githubRepoUrl || updateData.githubAppId || updateData.githubAppInstallationId;
-    if (hasGitHubFields && updatedProject.githubRepoUrl && updatedProject.githubAppId && updatedProject.githubAppInstallationId) {
-      setImmediate(async () => {
-        try {
-          await githubService.verifyConnection(updatedProject.id);
-        } catch (error) {
-          console.error(`[GitHub] Failed to verify connection for project ${updatedProject.id}:`, error.message);
-        }
-      });
+    const hasGitHubFields =
+      updateData.githubRepoUrl ||
+      updateData.githubAppId ||
+      updateData.githubAppInstallationId;
+    if (
+      hasGitHubFields &&
+      updatedProject.githubRepoUrl &&
+      updatedProject.githubAppId &&
+      updatedProject.githubAppInstallationId
+    ) {
+      try {
+        await githubService.verifyConnection(updatedProject.id);
+      } catch (error) {
+        console.error(
+          `[GitHub] Failed to verify connection for project ${updatedProject.id}:`,
+          error.message
+        );
+      }
     }
 
     res.status(200).json(new SuccessResponseDto(updatedProject));

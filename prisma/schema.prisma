@@ -94,6 +94,8 @@ model Employee {
   updateRequestsMade                         UpdateRequest[]           @relation("RequestedBy")
   updateRequestsReviewed                     UpdateRequest[]           @relation("ReviewedBy")
   workHistory                                WorkHistory[]
+  githubUsername                             String?                   @map("github_username")
+
 }
 
 model Contract {
