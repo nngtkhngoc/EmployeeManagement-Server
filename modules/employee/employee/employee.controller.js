@@ -78,11 +78,11 @@ const employeeController = {
         const departmentIdArray = Array.isArray(departmentId)
           ? departmentId.map(id => parseInt(id)).filter(id => !isNaN(id))
           : typeof departmentId === "string"
-          ? departmentId
+            ? departmentId
               .split(",")
               .map(id => parseInt(id.trim()))
               .filter(id => !isNaN(id))
-          : [];
+            : [];
 
         if (departmentIdArray.length === 1) {
           filter.departmentId = departmentIdArray[0];
@@ -98,11 +98,11 @@ const employeeController = {
         const positionIdArray = Array.isArray(positionId)
           ? positionId.map(id => parseInt(id)).filter(id => !isNaN(id))
           : typeof positionId === "string"
-          ? positionId
+            ? positionId
               .split(",")
               .map(id => parseInt(id.trim()))
               .filter(id => !isNaN(id))
-          : [];
+            : [];
 
         if (positionIdArray.length === 1) {
           filter.positionId = positionIdArray[0];
@@ -160,7 +160,19 @@ const employeeController = {
       const options = { page, limit };
       const where = filter;
       const include = {
-        department: true,
+        department: {
+          include: {
+            manager: {
+              select: {
+                id: true,
+                fullName: true,
+                avatar: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
         position: true,
         managedDepartment: true,
         contractsAsSigner: true,
@@ -176,9 +188,7 @@ const employeeController = {
       };
       const employees = await employeeService.read(
         { where, include },
-        {
-          options,
-        }
+        options
       );
 
       return res.status(200).json(new SuccessResponseDto(employees));
@@ -192,7 +202,19 @@ const employeeController = {
     const { id } = req.params;
     const employee = await employeeService.readById(parseInt(id), {
       include: {
-        department: true,
+        department: {
+          include: {
+            manager: {
+              select: {
+                id: true,
+                fullName: true,
+                avatar: true,
+                email: true,
+                phone: true,
+              },
+            },
+          },
+        },
         position: true,
         managedDepartment: true,
         contractsAsSigner: true,
@@ -253,7 +275,7 @@ const employeeController = {
     return res.status(201).json(new SuccessResponseDto(newEmployee));
   },
 
-  deleteEmployee: async (req, res) => {},
+  deleteEmployee: async (req, res) => { },
 
   updateEmployee: async (req, res) => {
     const value = await employeeValidation
