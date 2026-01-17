@@ -286,6 +286,8 @@ model Project {
   githubAppId             String?         @map("github_app_id") @db.VarChar(50)
   githubAppInstallationId String?         @map("github_app_installation_id") @db.VarChar(50)
   githubRepoUrl           String?         @map("github_repo_url") @db.VarChar(500)
+  githubConnected         Boolean?        @default(false) @map("github_connected")
+  githubLastVerified      DateTime?       @map("github_last_verified")
   epics                   Epic[]
   manager                 Employee?       @relation("ProjectManager", fields: [managerId], references: [id])
   members                 ProjectMember[]
