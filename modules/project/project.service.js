@@ -20,7 +20,7 @@ class ProjectService extends BaseService {
         }
       }
 
-      // Create project with manager
+      // Create project with manager and GitHub fields
       const project = await tx.project.create({
         data: {
           name: data.name,
@@ -30,6 +30,9 @@ class ProjectService extends BaseService {
           status: data.status,
           budget: data.budget,
           managerId: managerId || null,
+          githubRepoUrl: data.githubRepoUrl,
+          githubAppId: data.githubAppId,
+          githubAppInstallationId: data.githubAppInstallationId,
         },
       });
 

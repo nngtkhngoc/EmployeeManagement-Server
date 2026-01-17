@@ -43,6 +43,8 @@ model Employee {
   citizenId                                  String                    @map("citizen_id")
   citizenIdIssueDate                         String?                   @map("citizen_id_issue_date")
   citizenIdIssuePlace                        String?                   @map("citizen_id_issue_place")
+  citizenIdFrontImage                        String?                   @map("citizen_id_front_image")
+  citizenIdBackImage                         String?                   @map("citizen_id_back_image")
   phone                                      String
   email                                      String
   ethnicity                                  String
@@ -290,8 +292,13 @@ model Project {
   githubAppId             String?         @map("github_app_id") @db.VarChar(50)
   githubAppInstallationId String?         @map("github_app_installation_id") @db.VarChar(50)
   githubRepoUrl           String?         @map("github_repo_url") @db.VarChar(500)
+<<<<<<< HEAD
   github_connected        Boolean?        @default(false)
   github_last_verified    DateTime?
+=======
+  githubConnected         Boolean?        @default(false) @map("github_connected")
+  githubLastVerified      DateTime?       @map("github_last_verified")
+>>>>>>> 17f97970b48cda645488eebb426b5c1fd2dbb9b4
   epics                   Epic[]
   manager                 Employee?       @relation("ProjectManager", fields: [managerId], references: [id])
   members                 ProjectMember[]
