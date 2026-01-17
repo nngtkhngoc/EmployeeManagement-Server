@@ -124,6 +124,9 @@ const projectController = {
         budget: true,
         createdAt: true,
         updatedAt: true,
+        githubRepoUrl: true,
+        githubAppId: true,
+        githubAppInstallationId: true,
         manager: {
           select: {
             id: true,
@@ -133,14 +136,7 @@ const projectController = {
         },
         members: {
           select: {
-            employee: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                email: true,
-              },
-            },
+            employee: true,
             joinedAt: true,
             role: true,
           },

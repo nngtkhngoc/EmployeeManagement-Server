@@ -33,6 +33,9 @@ const projectValidation = {
       budget: Joi.number().min(0).optional(),
       managerId: Joi.number().integer().optional(),
       employeeIds: Joi.array().items(employeeItem).min(1).optional(),
+      githubRepoUrl: Joi.string().uri().max(500).optional(),
+      githubAppId: Joi.string().max(50).optional(),
+      githubAppInstallationId: Joi.string().max(50).optional(),
     }).unknown(false),
   },
 
@@ -52,6 +55,9 @@ const projectValidation = {
       budget: Joi.number().min(0).optional(),
       managerId: Joi.number().integer().allow(null).optional(),
       employeeIds: Joi.array().items(employeeItem).optional(),
+      githubRepoUrl: Joi.string().uri().max(500).optional(),
+      githubAppId: Joi.string().max(50).optional(),
+      githubAppInstallationId: Joi.string().max(50).optional(),
     })
       .min(1) // ❗ must update at least one field
       .unknown(false),
