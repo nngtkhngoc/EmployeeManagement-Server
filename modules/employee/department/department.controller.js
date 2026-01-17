@@ -58,8 +58,8 @@ const departmentController = {
         const statusArray = Array.isArray(status)
           ? status
           : typeof status === "string"
-          ? status.split(",").map(s => s.trim().toUpperCase())
-          : [];
+            ? status.split(",").map(s => s.trim().toUpperCase())
+            : [];
 
         const validStatuses = statusArray.filter(
           s => s === "ACTIVE" || s === "INACTIVE"
@@ -77,11 +77,11 @@ const departmentController = {
         const managerIds = Array.isArray(managerId)
           ? managerId.map(id => parseInt(id)).filter(id => !isNaN(id))
           : typeof managerId === "string"
-          ? managerId
+            ? managerId
               .split(",")
               .map(id => parseInt(id.trim()))
               .filter(id => !isNaN(id))
-          : [];
+            : [];
 
         if (managerIds.length === 1) {
           where.managerId = managerIds[0];
@@ -190,7 +190,7 @@ const departmentController = {
 
       const departments = await departmentService.read(
         { where, include },
-        { options }
+        options
       );
 
       return res.status(200).json(new SuccessResponseDto(departments));
@@ -230,7 +230,7 @@ const departmentController = {
       });
 
     const departmentData = {
-      departmentCode: value.departmentCode,
+      departmentCode: value.departmentCode.toUpperCase(),
       name: value.name,
       foundedAt: value.foundedAt,
       description: value.description,
@@ -262,7 +262,7 @@ const departmentController = {
       });
 
     const departmentData = {
-      departmentCode: value.departmentCode,
+      departmentCode: value.departmentCode.toUpperCase(),
       name: value.name,
       foundedAt: value.foundedAt,
       description: value.description,
