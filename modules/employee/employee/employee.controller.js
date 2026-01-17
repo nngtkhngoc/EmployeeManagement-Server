@@ -268,6 +268,11 @@ const employeeController = {
       healthCertificate: value.healthCertificate,
       // departmentId: value.departmentId,
       positionId: value.positionId,
+      citizenIdFrontImage: value.citizenIdFrontImage,
+      citizenIdBackImage: value.citizenIdBackImage,
+      citizenIdIssueDate: value.citizenIdIssueDate,
+      citizenIdIssuePlace: value.citizenIdIssuePlace,
+      onboardDate: value.onboardDate,
     };
 
     const newEmployee = await employeeService.create(employeeData);
@@ -312,6 +317,11 @@ const employeeController = {
       departmentId: value.departmentId,
       positionId: value.positionId,
       workStatus: value.workStatus,
+      citizenIdFrontImage: value.citizenIdFrontImage,
+      citizenIdBackImage: value.citizenIdBackImage,
+      citizenIdIssueDate: value.citizenIdIssueDate,
+      citizenIdIssuePlace: value.citizenIdIssuePlace,
+      onboardDate: value.onboardDate,
     };
 
     const updatedEmployee = await employeeService.update(
