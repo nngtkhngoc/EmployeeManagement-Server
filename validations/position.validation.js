@@ -7,7 +7,7 @@ const positionValidation = {
         .trim()
         .min(3)
         .max(100)
-        .pattern(/^[a-zA-ZÀ-ỹ\s&]+$/)
+        .pattern(/^[a-zA-ZÀ-ỹ\s&/]+$/)
         .required()
         .messages({
           "any.required": "Tên vị trí là bắt buộc",
@@ -15,7 +15,7 @@ const positionValidation = {
           "string.min": "Tên vị trí phải có ít nhất 3 ký tự",
           "string.max": "Tên vị trí không được quá 100 ký tự",
           "string.pattern.base":
-            "Tên vị trí chỉ được chứa chữ cái, khoảng trắng và dấu &",
+            "Tên vị trí chỉ được chứa chữ cái, khoảng trắng, dấu & và dấu /",
         }),
 
       status: Joi.string().valid("ACTIVE", "INACTIVE").optional().messages({
@@ -30,14 +30,14 @@ const positionValidation = {
         .trim()
         .min(3)
         .max(100)
-        .pattern(/^[a-zA-ZÀ-ỹ\s&]+$/)
+        .pattern(/^[a-zA-ZÀ-ỹ\s&/]+$/)
         .optional()
         .messages({
           "string.empty": "Tên vị trí không được để trống",
           "string.min": "Tên vị trí phải có ít nhất 3 ký tự",
           "string.max": "Tên vị trí không được quá 100 ký tự",
           "string.pattern.base":
-            "Tên vị trí chỉ được chứa chữ cái, khoảng trắng và dấu &",
+            "Tên vị trí chỉ được chứa chữ cái, khoảng trắng, dấu & và dấu /",
         }),
 
       status: Joi.string().valid("ACTIVE", "INACTIVE").optional().messages({

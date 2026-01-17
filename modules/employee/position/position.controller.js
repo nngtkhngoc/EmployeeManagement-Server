@@ -24,8 +24,8 @@ const positionController = {
         const statusArray = Array.isArray(status)
           ? status
           : typeof status === "string"
-          ? status.split(",").map(s => s.trim().toUpperCase())
-          : [];
+            ? status.split(",").map(s => s.trim().toUpperCase())
+            : [];
 
         const validStatuses = statusArray.filter(
           s => s === "ACTIVE" || s === "INACTIVE"
@@ -71,12 +71,7 @@ const positionController = {
       const include = {
         employees: true,
       };
-      const positions = await positionService.read(
-        { where, include },
-        {
-          options,
-        }
-      );
+      const positions = await positionService.read({ where, include }, options);
 
       return res.status(200).json(new SuccessResponseDto(positions));
     } catch (error) {
