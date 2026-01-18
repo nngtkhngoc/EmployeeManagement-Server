@@ -1,6 +1,6 @@
 import BaseService from "../../core/service/baseService.js";
 import { prisma } from "../../config/db.js";
-
+import githubService from "../github/github.service.js";
 class ProjectService extends BaseService {
   constructor() {
     super(prisma.project);
@@ -20,7 +20,7 @@ class ProjectService extends BaseService {
         }
       }
 
-      // Create project with manager
+      // Create project with manager and GitHub fields
       const project = await tx.project.create({
         data: {
           name: data.name,
@@ -30,6 +30,9 @@ class ProjectService extends BaseService {
           status: data.status,
           budget: data.budget,
           managerId: managerId || null,
+          githubRepoUrl: data.githubRepoUrl,
+          githubAppId: data.githubAppId,
+          githubAppInstallationId: data.githubAppInstallationId,
         },
       });
 
@@ -157,7 +160,8 @@ class ProjectService extends BaseService {
         where: { projectId_employeeId: { projectId, employeeId } },
       });
       if (exists) throw new Error("Employee already assigned");
-
+      console.log("EMPLOYEE", employee, "!@#");
+      githubService.inviteUserToRepo(projectId, employee.email);
       return tx.projectMember.create({
         data: { projectId, employeeId, role },
         include: {
@@ -182,7 +186,21 @@ class ProjectService extends BaseService {
 
       await this.addMultipleEmployees(tx, projectId, employeeData);
 
+      // fetch all members to invite to GitHub with employeeId
+      const employees = await tx.employee.findMany({
+        where: {
+          id: {
+            in: employeeData.map(emp =>
+              typeof emp === "object" ? emp.employeeId : emp
+            ),
+          },
+          isActive: true,
+        },
+        select: { email: true, id: true, fullName: true, githubUsername: true },
+      });
+      await githubService.inviteMultipleUsers(projectId, employees);
       // Fetch and return the updated project with all members
+
       return tx.project.findUnique({
         where: { id: projectId },
         include: {
@@ -223,13 +241,59 @@ class ProjectService extends BaseService {
       data: employeeData.map(emp => ({
         projectId,
         employeeId: typeof emp === "object" ? emp.employeeId : emp,
-        role: typeof emp === "object" ? emp.role ?? "MEMBER" : "MEMBER",
+        role: typeof emp === "object" ? (emp.role ?? "MEMBER") : "MEMBER",
       })),
       skipDuplicates: true,
     });
   }
 
-  async findManyWithPagination(filter = {}, page = 1, limit = 20, select = null) {
+  async findUnique(where, select = null) {
+    const queryOptions = { where };
+
+    // Use select if provided, otherwise use include
+    if (select) {
+      queryOptions.select = select;
+    } else {
+      queryOptions.include = {
+        manager: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+            avatar: true,
+            employeeCode: true,
+          },
+        },
+        members: {
+          select: {
+            id: true,
+            projectId: true,
+            employeeId: true,
+            role: true,
+            joinedAt: true,
+            employee: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+                avatar: true,
+                employeeCode: true,
+              },
+            },
+          },
+        },
+      };
+    }
+
+    return prisma.project.findUnique(queryOptions);
+  }
+
+  async findManyWithPagination(
+    filter = {},
+    page = 1,
+    limit = 20,
+    select = null
+  ) {
     const skip = (page - 1) * parseInt(limit);
     const take = parseInt(limit);
 

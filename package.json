@@ -16,6 +16,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@octokit/app": "^16.1.2",
+    "@octokit/rest": "^22.0.1",
     "@prisma/client": "^6.17.1",
     "@stream-io/video-react-sdk": "^1.31.0",
     "axios": "^1.6.0",
@@ -42,6 +44,7 @@
     "multer-storage-cloudinary": "^4.0.0",
     "nodemailer": "^7.0.10",
     "nodemon": "^3.1.10",
+    "octokit": "^5.0.5",
     "pdfjs-dist": "^5.4.530",
     "redis": "^5.8.3",
     "socket.io": "^4.8.1",

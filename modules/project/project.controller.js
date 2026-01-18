@@ -2,6 +2,7 @@ import { SuccessResponseDto } from "../../common/dtos/successResponseDto.js";
 import catchAsync from "../../common/catchAsync.js";
 import projectService from "./project.service.js";
 import projectValidation from "../../validations/project.validation.js";
+import githubService from "../github/github.service.js";
 
 const projectController = {
   getAllProjects: catchAsync(async (req, res) => {
@@ -124,6 +125,11 @@ const projectController = {
         budget: true,
         createdAt: true,
         updatedAt: true,
+        githubRepoUrl: true,
+        githubAppId: true,
+        githubAppInstallationId: true,
+        githubConnected: true,
+        githubLastVerified: true,
         manager: {
           select: {
             id: true,
@@ -133,14 +139,7 @@ const projectController = {
         },
         members: {
           select: {
-            employee: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-                email: true,
-              },
-            },
+            employee: true,
             joinedAt: true,
             role: true,
           },
@@ -157,6 +156,25 @@ const projectController = {
         abortEarly: false,
       });
     const newProject = await projectService.create(projectData);
+
+    // Trigger GitHub connection verification asynchronously if GitHub credentials are provided
+    if (
+      newProject.githubRepoUrl &&
+      newProject.githubAppId &&
+      newProject.githubAppInstallationId
+    ) {
+      setImmediate(async () => {
+        try {
+          await githubService.verifyConnection(newProject.id);
+        } catch (error) {
+          console.error(
+            `[GitHub] Failed to verify connection for project ${newProject.id}:`,
+            error.message
+          );
+        }
+      });
+    }
+
     res.status(201).json(new SuccessResponseDto(newProject));
   }),
 
@@ -173,6 +191,28 @@ const projectController = {
       { id: parseInt(params.id) },
       updateData
     );
+
+    // Trigger GitHub connection verification if GitHub fields were updated
+    const hasGitHubFields =
+      updateData.githubRepoUrl ||
+      updateData.githubAppId ||
+      updateData.githubAppInstallationId;
+    if (
+      hasGitHubFields &&
+      updatedProject.githubRepoUrl &&
+      updatedProject.githubAppId &&
+      updatedProject.githubAppInstallationId
+    ) {
+      try {
+        await githubService.verifyConnection(updatedProject.id);
+      } catch (error) {
+        console.error(
+          `[GitHub] Failed to verify connection for project ${updatedProject.id}:`,
+          error.message
+        );
+      }
+    }
+
     res.status(200).json(new SuccessResponseDto(updatedProject));
   }),
 

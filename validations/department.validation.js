@@ -7,14 +7,14 @@ const departmentValidation = {
         .trim()
         .alphanum()
         .min(2)
-        .max(4)
+        .max(10)
         .required()
         .messages({
           "any.required": "Mã phòng ban là bắt buộc",
           "string.empty": "Mã phòng ban không được để trống",
           "string.alphanum": "Mã phòng ban chỉ được chứa chữ và số",
           "string.min": "Mã phòng ban phải có ít nhất 2 ký tự",
-          "string.max": "Mã phòng ban không được quá 4 ký tự",
+          "string.max": "Mã phòng ban không được quá 10 ký tự",
         }),
 
       name: Joi.string()
@@ -60,12 +60,12 @@ const departmentValidation = {
         .trim()
         .alphanum()
         .min(2)
-        .max(4)
+        .max(10)
         .optional()
         .messages({
           "string.alphanum": "Mã phòng ban chỉ được chứa chữ và số",
           "string.min": "Mã phòng ban phải có ít nhất 2 ký tự",
-          "string.max": "Mã phòng ban không được quá 4 ký tự",
+          "string.max": "Mã phòng ban không được quá 10 ký tự",
         }),
 
       name: Joi.string()

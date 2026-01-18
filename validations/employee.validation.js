@@ -142,6 +142,21 @@ const employeeValidation = {
         "any.required": "Chức vụ là bắt buộc",
         "number.base": "Chức vụ phải là số",
       }),
+      citizenIdFrontImage: Joi.string().allow(null).uri().optional().messages({
+        "string.uri": "Hình ảnh CCCD mặt trước phải là URL hợp lệ",
+      }),
+      citizenIdBackImage: Joi.string().allow(null).uri().optional().messages({
+        "string.uri": "Hình ảnh CCCD mặt sau phải là URL hợp lệ",
+      }),
+      citizenIdIssueDate: Joi.string().allow(null).max(100).optional().messages({
+        "string.max": "Ngày cấp CCCD không được quá 100 kí tự",
+      }),
+      citizenIdIssuePlace: Joi.string().allow(null).max(255).optional().messages({
+        "string.max": "Nơi cấp CCCD không được quá 255 kí tự",
+      }),
+      onboardDate: Joi.string().allow(null).max(100).optional().messages({
+        "string.max": "Ngày nhận việc không được quá 100 kí tự",
+      }),
     });
   },
   updateEmployeeValidate: () => {
@@ -269,6 +284,21 @@ const employeeValidation = {
       }),
       positionId: Joi.number().integer().optional().messages({
         "number.base": "Chức vụ phải là số",
+      }),
+      citizenIdFrontImage: Joi.string().allow(null).uri().optional().messages({
+        "string.uri": "Hình ảnh CCCD mặt trước phải là URL hợp lệ",
+      }),
+      citizenIdBackImage: Joi.string().allow(null).uri().optional().messages({
+        "string.uri": "Hình ảnh CCCD mặt sau phải là URL hợp lệ",
+      }),
+      citizenIdIssueDate: Joi.string().allow(null).max(100).optional().messages({
+        "string.max": "Ngày cấp CCCD không được quá 100 kí tự",
+      }),
+      citizenIdIssuePlace: Joi.string().allow(null).max(255).optional().messages({
+        "string.max": "Nơi cấp CCCD không được quá 255 kí tự",
+      }),
+      onboardDate: Joi.string().allow(null).max(100).optional().messages({
+        "string.max": "Ngày nhận việc không được quá 100 kí tự",
       }),
       workStatus: Joi.string()
         .optional()
